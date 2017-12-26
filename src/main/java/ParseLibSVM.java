@@ -164,6 +164,7 @@ public class ParseLibSVM {
 
         //结果数据:(id,kv)
         JavaPairRDD libSVM = counted.toJavaRDD().mapToPair(new PairFunction<Row, String, String>() {
+            @Override
             public Tuple2<String,String> call(Row row)
             {
                 return new Tuple2(row.getString(0).trim(),row.getString(1).trim()+","+row.get(2).toString().trim());
@@ -186,11 +187,13 @@ public class ParseLibSVM {
                     count.add(parts[1].trim());
                 }
 
-                for(int i=0;i<word.size();i++)
+                for(int i=0;i<word.size();i++) {
                     wordIndx.add(broadcastWordList.value().indexOf(word.get(i)));
+                }
 
-                for(int i=0;i<word.size()-1;i++)
-                    result.append(wordIndx.get(i).toString().trim()+":"+count.get(i).trim()+",");
+                for(int i=0;i<word.size()-1;i++) {
+                    result.append(wordIndx.get(i).toString().trim() + ":" + count.get(i).trim() + ",");
+                }
                 result.append(wordIndx.get(word.size()-1).toString().trim()+":"+count.get(word.size()-1).trim());
 
                 //输出格式:(id,wordId:count)

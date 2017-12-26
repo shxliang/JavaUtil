@@ -1,4 +1,4 @@
-package testclassifier;
+package textclassifier;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;

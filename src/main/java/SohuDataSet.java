@@ -33,8 +33,9 @@ public class SohuDataSet
                 .load("file:///E:\\数据集\\搜狗实验室\\sohu_categories_2012.csv")
                 .collectAsList();
         final Map<String,String> classLabelMap = new HashMap<>();
-        for (Row r : classLabel)
-            classLabelMap.put(r.getString(1),r.getString(0));
+        for (Row r : classLabel) {
+            classLabelMap.put(r.getString(1), r.getString(0));
+        }
 
         DataFrame data = sqlContext.read()
                 .format("com.databricks.spark.csv")
@@ -50,8 +51,9 @@ public class SohuDataSet
                 Set<String> set = classLabelMap.keySet();
                 for (String str : set)
                 {
-                    if (s.startsWith(str))
+                    if (s.startsWith(str)) {
                         return classLabelMap.get(str);
+                    }
                 }
                 return null;
             }

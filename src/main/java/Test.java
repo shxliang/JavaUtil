@@ -1,14 +1,20 @@
 import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.function.Function;
+import org.apache.spark.api.java.function.Function2;
+import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.ml.classification.*;
 import org.apache.spark.ml.clustering.*;
 import org.apache.spark.ml.feature.*;
 import org.apache.spark.sql.*;
 import org.apache.spark.sql.api.java.UDF2;
 import org.apache.spark.sql.types.*;
+import scala.Tuple2;
 import scala.util.*;
 
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * Created by lsx on 2017/1/7.
@@ -21,28 +27,9 @@ public class Test {
         JavaSparkContext jsc = new JavaSparkContext(sc);
         SQLContext sqlContext = new SQLContext(jsc);
 
-        sqlContext.udf().register("combine", new UDF2<String, String, String>() {
-            @Override
-            public String call(String s, String s2) throws Exception {
-                return s + "。" + s2;
-            }
-        }, DataTypes.StringType);
-
-
-        DataFrame allDF = sqlContext.read()
-                .parquet("/Users/lsx/Desktop/TextClassification/removed.parquet");
-        DataFrame[] dataFrames = allDF.randomSplit(new double[]{0.8,0.2},1231);
-        DataFrame trainDF = dataFrames[0];
-        DataFrame testDF = dataFrames[1];
-
-        trainDF.repartition(1)
-                .write()
-                .mode(SaveMode.Overwrite)
-                .parquet("/Users/lsx/Desktop/TextClassification/train.parquet");
-        testDF.repartition(1)
-                .write()
-                .mode(SaveMode.Overwrite)
-                .parquet("/Users/lsx/Desktop/TextClassification/test.parquet");
+        DataFrame dataFrame = sqlContext.read()
+                .parquet("hdfs://90.90.90.5:8020/user/lsx/17hotwords/mrp_data.parquet");
+        dataFrame.select("docClass").distinct().show(100);
 
         jsc.stop();
     }

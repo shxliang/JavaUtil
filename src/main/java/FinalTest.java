@@ -15,12 +15,12 @@ public class FinalTest {
         JavaSparkContext jsc = new JavaSparkContext(sc);
         SQLContext sqlContext = new SQLContext(jsc);
 
-        DataFrame test = sqlContext.read().parquet("hdfs://90.90.90.5:8020/user/lsx/MRPResult/p_allData.parquet/year=2017/month=08/day=09");
+        DataFrame test = sqlContext.read().parquet("hdfs://90.90.90.5:8020/user/lsx/MRPResult/p_allData.parquet/year=2017/month=08/day=17/part-r-00000-eaa263a7-c7c5-4389-935c-0fa6dd44fd70.gz.parquet");
         test.registerTempTable("test");
 
 //        test.show();
-        test.filter("docId='WSVg3l1hsQHsE1MflWSCH4lkOTZR9XP2|1502258014086|d2498'").show();
-//        System.out.println(test.count());
+//        test.filter("docId='part-r-00000-eaa263a7-c7c5-4389-935c-0fa6dd44fd70.gz.parquet'").show();
+        System.out.println(test.count());
 //        test.printSchema();
 //        System.out.println(test.select("tags").toJSON().first());
 

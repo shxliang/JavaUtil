@@ -37,8 +37,9 @@ public class OneVsRestSVM {
 
         List<Row> labelList = data.select("categoryIndex").distinct().collectAsList();
         ArrayList<Double> localLabelList = new ArrayList<>();
-        for (int i=0;i<labelList.size();i++)
-            localLabelList.add((double)labelList.get(i).get(0));
+        for (int i=0;i<labelList.size();i++) {
+            localLabelList.add((double) labelList.get(i).get(0));
+        }
 
         final Broadcast<ArrayList<Double>> broadcastLabel = jsc.broadcast(localLabelList);
 
@@ -59,10 +60,11 @@ public class OneVsRestSVM {
                     .map(new Function<Row, Tuple2<String,LabeledPoint>>() {
                         @Override
                         public Tuple2<String,LabeledPoint> call(Row row) throws Exception {
-                            if (row.getDouble(1) == curClass)
-                                return new Tuple2<String, LabeledPoint>(row.getString(0).trim(),new LabeledPoint((double)1,(Vector)row.get(2)));
-                            else
-                                return new Tuple2<String, LabeledPoint>(row.getString(0).trim(),new LabeledPoint((double)0,(Vector)row.get(2)));
+                            if (row.getDouble(1) == curClass) {
+                                return new Tuple2<String, LabeledPoint>(row.getString(0).trim(), new LabeledPoint((double) 1, (Vector) row.get(2)));
+                            } else {
+                                return new Tuple2<String, LabeledPoint>(row.getString(0).trim(), new LabeledPoint((double) 0, (Vector) row.get(2)));
+                            }
                         }
                     });
 
@@ -80,6 +82,7 @@ public class OneVsRestSVM {
 
             JavaRDD<Tuple2<Object, Object>> curPredictions = curLabeledPiont.map(
                     new Function<LabeledPoint, Tuple2<Object, Object>>() {
+                        @Override
                         public Tuple2<Object, Object> call(LabeledPoint p) {
                             Double label = curModel.predict(p.features());
                             return new Tuple2<Object, Object>(label, p.label());
@@ -93,13 +96,15 @@ public class OneVsRestSVM {
             final Double curPrecision = curMetrics.precision();
 
             JavaPairRDD<String,Tuple2<Double,Double>> curPredict = curRDD.mapToPair(new PairFunction<Tuple2<String,LabeledPoint>, String, Tuple2<Double,Double>>() {
+                @Override
                 public Tuple2<String,Tuple2<Double,Double>> call(Tuple2<String,LabeledPoint> stringLabeledPointTuple2)
                 {
                     Double predictResult = curModel.predict(stringLabeledPointTuple2._2().features());
-                    if (predictResult == 1.0)
-                        return new Tuple2(stringLabeledPointTuple2._1().trim(),new Tuple2(curClass,curPrecision));
-                    else
-                        return new Tuple2(stringLabeledPointTuple2._1().trim(),new Tuple2(-1.0,curPrecision));
+                    if (predictResult == 1.0) {
+                        return new Tuple2(stringLabeledPointTuple2._1().trim(), new Tuple2(curClass, curPrecision));
+                    } else {
+                        return new Tuple2(stringLabeledPointTuple2._1().trim(), new Tuple2(-1.0, curPrecision));
+                    }
                 }
 
             });
@@ -114,9 +119,11 @@ public class OneVsRestSVM {
 
 
         JavaPairRDD<String,Tuple2<Double,Double>> predictRDD = predictList.get(0).union(predictList.get(1));
-        if (predictList.size()>2)
-            for (int i=2;i<predictList.size();i++)
+        if (predictList.size()>2) {
+            for (int i = 2; i < predictList.size(); i++) {
                 predictRDD = predictRDD.union(predictList.get(i));
+            }
+        }
 
 
         JavaPairRDD<String,Double> predictions = predictRDD.groupByKey().mapValues(new Function<Iterable<Tuple2<Double, Double>>, Double>() {
@@ -136,28 +143,31 @@ public class OneVsRestSVM {
 
                 }
 
-                for(int i=0;i<label.size();i++)
-                    if (label.get(i) != (-1.0))
+                for(int i=0;i<label.size();i++) {
+                    if (label.get(i) != (-1.0)) {
                         result.add(label.get(i));
+                    }
+                }
 
 
                 if (result.size()>1)
                 {
                     double maxLabel = -1;
                     double max = 0;
-                    for (int i=0;i<result.size();i++)
-                        if (prec.get(label.indexOf(result.get(i)))>max)
-                        {
+                    for (int i=0;i<result.size();i++) {
+                        if (prec.get(label.indexOf(result.get(i))) > max) {
                             max = prec.get(label.indexOf(result.get(i)));
                             maxLabel = result.get(i);
                         }
+                    }
                     return maxLabel;
 
                 }
-                else if (result.size() == 1)
+                else if (result.size() == 1) {
                     return result.get(0);
-                else
+                } else {
                     return -1.0;
+                }
 
 
             }
@@ -166,6 +176,7 @@ public class OneVsRestSVM {
 
         JavaPairRDD<String,Tuple2<Double,Double>> predicResult = predictions
                 .join(data.select("id","categoryIndex").toJavaRDD().mapToPair(new PairFunction<Row, String, Double>() {
+                    @Override
                     public Tuple2<String,Double> call(Row row)
                     {
                         return new Tuple2<String, Double>(row.getString(0).trim(),row.getDouble(1));

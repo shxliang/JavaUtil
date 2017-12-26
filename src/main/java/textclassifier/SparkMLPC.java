@@ -1,4 +1,4 @@
-package testclassifier;
+package textclassifier;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -97,10 +97,13 @@ public class SparkMLPC {
                     double curPre = prediction[i];
                     if (weight.containsKey(curPre))
 //                        weight.put(curPre, weight.get(curPre)+f1Array[i]);
+                    {
                         weight.put(curPre, weight.get(curPre) + 1D);
-                    else
+                    } else
 //                        weight.put(curPre, f1Array[i]);
+                    {
                         weight.put(curPre, 1D);
+                    }
                 }
                 weight = MapUtil.sortByValue(weight);
                 return weight.keySet().iterator().next();
@@ -117,10 +120,13 @@ public class SparkMLPC {
                     double curPre = prediction[i];
                     if (weight.containsKey(curPre))
 //                        weight.put(curPre, weight.get(curPre)+f1Array[i]);
+                    {
                         weight.put(curPre, weight.get(curPre) + 1D);
-                    else
+                    } else
 //                        weight.put(curPre, f1Array[i]);
+                    {
                         weight.put(curPre, 1D);
+                    }
                 }
                 weight = MapUtil.sortByValue(weight);
                 return weight.keySet().iterator().next();

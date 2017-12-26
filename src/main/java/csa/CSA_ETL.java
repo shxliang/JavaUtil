@@ -368,48 +368,57 @@ public class CSA_ETL {
 
         //定义SQL UDF
         sqlContext.udf().register("myname", new UDF1<String, String>() {
+            @Override
             public String call(String s) throws Exception
             {
-                if(s.isEmpty())
+                if(s.isEmpty()) {
                     return "@";
-                else
+                } else {
                     return s.trim();
+                }
             }
         },DataTypes.StringType);
 
         sqlContext.udf().register("mysex", new UDF1<String, String>() {
+            @Override
             public String call(String s) throws Exception
             {
-                if(s.isEmpty())
+                if(s.isEmpty()) {
                     return "#";
-                else
+                } else {
                     return s.trim();
+                }
             }
         },DataTypes.StringType);
 
         sqlContext.udf().register("mybirth", new UDF1<String, String>() {
+            @Override
             public String call(String s) throws Exception
             {
-                if(s.isEmpty())
+                if(s.isEmpty()) {
                     return "*";
-                else
+                } else {
                     return s.trim();
+                }
             }
         },DataTypes.StringType);
 
 
         sqlContext.udf().register("myvip", new UDF1<Long, String>() {
+            @Override
             public String call(Long l) throws Exception
             {
-                if(l==null)
-                    return  "1";
-                else
+                if(l==null) {
+                    return "1";
+                } else {
                     return "0";
+                }
             }
 
         }, DataTypes.StringType);
 
         sqlContext.udf().register("myfrom", new UDF1<String, String>() {
+            @Override
             public String call(String s) throws Exception
             {
                 String[] parts=s.split("-");
@@ -418,6 +427,7 @@ public class CSA_ETL {
         },DataTypes.StringType);
 
         sqlContext.udf().register("myto", new UDF1<String, String>() {
+            @Override
             public String call(String s) throws Exception
             {
                 String[] parts=s.split("-");
@@ -427,30 +437,35 @@ public class CSA_ETL {
 
 
         sqlContext.udf().register("myadvan", new UDF1<Integer, String>() {
+            @Override
             public String call(Integer i) throws Exception
             {
 
-                if (i==null)
+                if (i==null) {
                     return null;
+                }
 
-                if(i <= 3)
+                if(i <= 3) {
                     return "1";
-                else
+                } else {
                     return "0";
+                }
             }
         },DataTypes.StringType);
 
 
         sqlContext.udf().register("myage", new UDF1<String, Integer>() {
+            @Override
             public Integer call(String s) throws Exception
             {
                 try {
                     Integer year = Integer.parseInt(s.trim().substring(0,4));
                     Integer result = 2016-year;
-                    if (result <=130 && result >0)
+                    if (result <=130 && result >0) {
                         return result;
-                    else
+                    } else {
                         return null;
+                    }
                 }
                 catch (Exception e)
                 {
@@ -461,6 +476,7 @@ public class CSA_ETL {
 
 
         sqlContext.udf().register("mydays", new UDF1<String, Integer>() {
+            @Override
             public Integer call(String s)
             {
                 String[] parts = s.split("-");
@@ -478,33 +494,40 @@ public class CSA_ETL {
 
 
         sqlContext.udf().register("myidb", new UDF1<String, String>() {
+            @Override
             public String call(String s)
             {
-                if (s.length()==0)
+                if (s.length()==0) {
                     return null;
+                }
                 String[] temp = s.split("自治区");
-                if (temp.length==1 && temp[0].equals(s))
+                if (temp.length==1 && temp[0].equals(s)) {
                     temp = s.split("省");
-                if (temp.length==1 && temp[0].equals(s))
+                }
+                if (temp.length==1 && temp[0].equals(s)) {
                     temp = s.split("市");
+                }
                 return temp[0].trim();
             }
         },DataTypes.StringType);
 
 
         sqlContext.udf().register("mybucket", new UDF1<Integer, String>() {
+            @Override
             public String call(Integer i)
             {
 
-                if (i == null)
+                if (i == null) {
                     return null;
+                }
                 String result;
-                if (i<=3)
+                if (i<=3) {
                     result = "1";
-                else if (i>3 && i<=7)
+                } else if (i>3 && i<=7) {
                     result = "2";
-                else
+                } else {
                     result = "3";
+                }
                 return result;
             }
         },DataTypes.StringType);
@@ -538,10 +561,11 @@ public class CSA_ETL {
                     @Override
                     public Tuple2<String, String> call(Row row) throws Exception {
                         String str = "null";
-                        if (row.get(3) == null)
+                        if (row.get(3) == null) {
                             str = "miss";
-                        else
+                        } else {
                             str = row.get(3).toString().trim();
+                        }
 
                         String temp = row.getString(1).trim()+","+row.getString(2).trim()+","+str+","+row.getString(4).trim();
                         return new Tuple2(row.getString(0).trim(),temp);
@@ -585,29 +609,33 @@ public class CSA_ETL {
                 int res_indx = -1;
                 for (int i=0;i<days.size();i++)
                 {
-                    if (days.get(i)==null)
+                    if (days.get(i)==null) {
                         continue;
+                    }
                     if(days.get(i)<min)
                     {
                         min = days.get(i);
                         res_indx = i;
                     }
                 }
-                if (res_indx == -1)
+                if (res_indx == -1) {
                     return null;
+                }
                 if (year.get(res_indx).equals("2015年"))
                 {
-                    if(days.get(res_indx) < 86)
+                    if(days.get(res_indx) < 86) {
                         return fromcity.get(res_indx);
-                    else
+                    } else {
                         return tocity.get(res_indx);
+                    }
                 }
                 else
                 {
-                    if (days.get(res_indx) < 75)
+                    if (days.get(res_indx) < 75) {
                         return fromcity.get(res_indx);
-                    else
+                    } else {
                         return tocity.get(res_indx);
+                    }
 
                 }
             }
@@ -667,8 +695,9 @@ public class CSA_ETL {
                         String from = fromcity.get(indx);
                         for(int i=0;i<tocity.size();i++)
                         {
-                            if(from.equals(tocity.get(i)))
+                            if(from.equals(tocity.get(i))) {
                                 return "1";
+                            }
                         }
                         return "0";
                     }
@@ -782,8 +811,9 @@ public class CSA_ETL {
                 while(iter.hasNext())
                 {
                     String cur = iter.next();
-                    if(cur == null)
+                    if(cur == null) {
                         continue;
+                    }
                     if(str.indexOf(cur) < 0)
                     {
                         str.add(cur);
@@ -795,8 +825,9 @@ public class CSA_ETL {
                         num.set(indx,num.get(indx)+1);
                     }
                 }
-                if (str.size() == 0)
+                if (str.size() == 0) {
                     return null;
+                }
                 int max = 0;
                 int res_indx =0;
                 for(int i=0;i<num.size();i++)
@@ -854,8 +885,9 @@ public class CSA_ETL {
                 while(iter.hasNext())
                 {
                     String cur = iter.next();
-                    if(cur == null)
+                    if(cur == null) {
                         continue;
+                    }
                     String[] parts = cur.split(";");
                     for(int i=0;i<parts.length;i++)
                     {
@@ -868,8 +900,9 @@ public class CSA_ETL {
                         }
                     }
                 }
-                if(str.size() == 0)
+                if(str.size() == 0) {
                     return null;
+                }
                 int max = 0;
                 int res_indx =0;
                 for(int i=0;i<num.size();i++)
@@ -923,8 +956,9 @@ public class CSA_ETL {
                 while (iter.hasNext())
                 {
                     Integer cur = Integer.parseInt(iter.next().trim());
-                    if(cur > max)
+                    if(cur > max) {
                         max = cur;
+                    }
                 }
                 return max.toString();
             }
@@ -976,8 +1010,9 @@ public class CSA_ETL {
                 while(iter.hasNext())
                 {
                     String cur = iter.next();
-                    if(cur == null)
+                    if(cur == null) {
                         continue;
+                    }
                     if(str.indexOf(cur) < 0)
                     {
                         str.add(cur);
@@ -989,8 +1024,9 @@ public class CSA_ETL {
                         num.set(indx,num.get(indx)+1);
                     }
                 }
-                if(str.size() == 0)
+                if(str.size() == 0) {
                     return null;
+                }
                 int max = 0;
                 int res_indx =0;
                 for(int i=0;i<num.size();i++)
@@ -1054,13 +1090,16 @@ public class CSA_ETL {
                 while (iter.hasNext())
                 {
                     Integer cur = iter.next();
-                    if(cur == null)
+                    if(cur == null) {
                         continue;
-                    if(cur > max)
+                    }
+                    if(cur > max) {
                         max = cur;
+                    }
                 }
-                if (max == 0)
+                if (max == 0) {
                     return null;
+                }
                 return max;
             }
         });
@@ -1108,8 +1147,9 @@ public class CSA_ETL {
                 while(iter.hasNext())
                 {
                     String cur = iter.next();
-                    if(cur == null)
+                    if(cur == null) {
                         continue;
+                    }
                     if(str.indexOf(cur) < 0)
                     {
                         str.add(cur);
@@ -1121,8 +1161,9 @@ public class CSA_ETL {
                         num.set(indx,num.get(indx)+1);
                     }
                 }
-                if(str.size() == 0)
+                if(str.size() == 0) {
                     return null;
+                }
                 int max = 0;
                 int res_indx =0;
                 for(int i=0;i<num.size();i++)
@@ -1238,18 +1279,20 @@ public class CSA_ETL {
                     @Override
                     public Tuple2<String, String> call(Row row) throws Exception {
                         String str2;
-                        if (row.get(3)==null)
+                        if (row.get(3)==null) {
                             str2 = "miss";
-                        else
+                        } else {
                             str2 = row.getString(3).trim();
+                        }
 
                         String key = row.getString(1).trim()+","+row.getString(2).trim()+","+str2;
 
                         String str1;
-                        if (row.get(4)==null)
+                        if (row.get(4)==null) {
                             str1 = "miss";
-                        else
-                            str1 =  row.get(4).toString().trim();
+                        } else {
+                            str1 = row.get(4).toString().trim();
+                        }
 
                         String value = row.getString(0).trim()+","+str1;
                         return new Tuple2(key,value);
@@ -1268,18 +1311,20 @@ public class CSA_ETL {
                 {
                     String[] parts = iter.next().split(",");
                     idcode.add(parts[0].trim());
-                    if (parts[1].equals("miss"))
+                    if (parts[1].equals("miss")) {
                         discount.add(null);
-                    else
+                    } else {
                         discount.add(Double.parseDouble(parts[1].trim()));
+                    }
                 }
                 double sum = 0;
                 int count = 0;
-                for (int i=0;i<discount.size();i++)
+                for (int i=0;i<discount.size();i++) {
                     if (discount.get(i) != null) {
                         sum = sum + discount.get(i);
                         count = count + 1;
                     }
+                }
                 double avg = sum/count;
 
                 ArrayList<String> result = new ArrayList<String>();
@@ -1290,10 +1335,11 @@ public class CSA_ETL {
                         result.add(idcode.get(i).trim()+","+"miss");
                         continue;
                     }
-                    if (discount.get(i)<=avg)
-                        result.add(idcode.get(i).trim()+","+"0");
-                    else
-                        result.add(idcode.get(i).trim()+","+"1");
+                    if (discount.get(i)<=avg) {
+                        result.add(idcode.get(i).trim() + "," + "0");
+                    } else {
+                        result.add(idcode.get(i).trim() + "," + "1");
+                    }
                 }
                 return result;
             }
@@ -1313,20 +1359,24 @@ public class CSA_ETL {
                 while (iter.hasNext())
                 {
                     cur = iter.next();
-                    if (cur.equals("1"))
-                        sum = sum+1;
-                    if (!cur.equals("miss"))
-                        count = count+1;
+                    if (cur.equals("1")) {
+                        sum = sum + 1;
+                    }
+                    if (!cur.equals("miss")) {
+                        count = count + 1;
+                    }
                 }
-                if (count==0)
+                if (count==0) {
                     return "none";
+                }
                 float perc = (float)sum/count;
-                if (perc<0.4)
+                if (perc<0.4) {
                     return "sens";
-                else if (perc>=0.4 && perc<0.7)
+                } else if (perc>=0.4 && perc<0.7) {
                     return "norm";
-                else
+                } else {
                     return "nosens";
+                }
             }
         });
 
@@ -1371,15 +1421,17 @@ public class CSA_ETL {
                     public Tuple2<String, String> call(Row row) throws Exception {
                         String key = row.get(1).toString().trim()+","+row.getString(2).trim()+","+row.getString(4).trim();
                         String str1;
-                        if (row.getString(3) == null)
-                            str1 ="miss";
-                        else
+                        if (row.getString(3) == null) {
+                            str1 = "miss";
+                        } else {
                             str1 = row.getString(3).trim();
+                        }
                         String str2;
-                        if (row.getString(5) == null)
-                            str2 ="miss";
-                        else
+                        if (row.getString(5) == null) {
+                            str2 = "miss";
+                        } else {
                             str2 = row.getString(5).trim();
+                        }
 
                         String value = row.getString(0).trim()+","+str1+","+str2;
                         return new Tuple2(key,value);
@@ -1418,17 +1470,23 @@ public class CSA_ETL {
                     idb.add(parts[i + 2]);
                 }
 
-                for (int i = 0; i < resid.size(); i++)
-                    if (!uresid.contains(resid.get(i)))
+                for (int i = 0; i < resid.size(); i++) {
+                    if (!uresid.contains(resid.get(i))) {
                         uresid.add(resid.get(i));
+                    }
+                }
 
-                for (int i = 0; i < idb.size(); i++)
-                    if (!uidb.contains(idb.get(i)))
+                for (int i = 0; i < idb.size(); i++) {
+                    if (!uidb.contains(idb.get(i))) {
                         uidb.add(idb.get(i));
+                    }
+                }
 
-                for (int i = 0; i < idcode.size(); i++)
-                    if (!uidcode.contains(idcode.get(i)))
+                for (int i = 0; i < idcode.size(); i++) {
+                    if (!uidcode.contains(idcode.get(i))) {
                         uidcode.add(idcode.get(i));
+                    }
+                }
 
                 ArrayList<String> temp = new ArrayList<String>();
                 int j = 0;
@@ -1436,36 +1494,50 @@ public class CSA_ETL {
 
 
                 for (int i = 0; i < uresid.size(); i++) {
-                    if (uresid.get(i).equals("miss"))
+                    if (uresid.get(i).equals("miss")) {
                         continue;
-                    for (j = 0; j < resid.size(); j++)
-                        if (resid.get(j).equals(uresid.get(i)))
+                    }
+                    for (j = 0; j < resid.size(); j++) {
+                        if (resid.get(j).equals(uresid.get(i))) {
                             temp.add(idcode.get(j));
-                    if (temp.size() > 1)
-                        for (k = 0; k < temp.size(); k++)
-                            if (!resid_id.contains(temp.get(k)))
+                        }
+                    }
+                    if (temp.size() > 1) {
+                        for (k = 0; k < temp.size(); k++) {
+                            if (!resid_id.contains(temp.get(k))) {
                                 resid_id.add(temp.get(k));
+                            }
+                        }
+                    }
                     temp.clear();
                 }
 
                 temp.clear();
 
                 for (int i = 0; i < uidb.size(); i++) {
-                    if (uidb.get(i).equals("miss"))
+                    if (uidb.get(i).equals("miss")) {
                         continue;
-                    for (j = 0; j < idb.size(); j++)
-                        if (idb.get(j).equals(uidb.get(i)))
+                    }
+                    for (j = 0; j < idb.size(); j++) {
+                        if (idb.get(j).equals(uidb.get(i))) {
                             temp.add(idcode.get(j));
-                    if (temp.size() > 1)
-                        for (k = 0; k < temp.size(); k++)
-                            if (!idb_id.contains(temp.get(k)))
+                        }
+                    }
+                    if (temp.size() > 1) {
+                        for (k = 0; k < temp.size(); k++) {
+                            if (!idb_id.contains(temp.get(k))) {
                                 idb_id.add(temp.get(k));
+                            }
+                        }
+                    }
                     temp.clear();
                 }
 
-                for (int i = 0; i < resid_id.size(); i++)
-                    if (idb_id.contains(resid_id.get(i)))
+                for (int i = 0; i < resid_id.size(); i++) {
+                    if (idb_id.contains(resid_id.get(i))) {
                         both_id.add(resid_id.get(i));
+                    }
+                }
 
 
                 for (int i = 0; i < both_id.size(); i++) {
@@ -1474,21 +1546,27 @@ public class CSA_ETL {
                     uidcode.remove(both_id.get(i));
                 }
 
-                for (int i = 0; i < resid_id.size(); i++)
+                for (int i = 0; i < resid_id.size(); i++) {
                     uidcode.remove(resid_id.get(i));
+                }
 
-                for (int i = 0; i < idb_id.size(); i++)
+                for (int i = 0; i < idb_id.size(); i++) {
                     uidcode.remove(idb_id.get(i));
+                }
 
                 ArrayList<String> result = new ArrayList<String>();
-                for (int i = 0; i < both_id.size(); i++)
+                for (int i = 0; i < both_id.size(); i++) {
                     result.add(both_id.get(i) + "," + "both");
-                for (int i = 0; i < resid_id.size(); i++)
+                }
+                for (int i = 0; i < resid_id.size(); i++) {
                     result.add(resid_id.get(i) + "," + "resid");
-                for (int i = 0; i < idb_id.size(); i++)
+                }
+                for (int i = 0; i < idb_id.size(); i++) {
                     result.add(idb_id.get(i) + "," + "idb");
-                for (int i = 0; i < uidcode.size(); i++)
+                }
+                for (int i = 0; i < uidcode.size(); i++) {
                     result.add(uidcode.get(i) + "," + "single");
+                }
                 return result;
             }
         });
@@ -1568,10 +1646,11 @@ public class CSA_ETL {
             public Tuple2<String, String> call(Row row) throws Exception {
                 String key = row.getString(0).trim();
                 String value;
-                if (row.getString(1)==null)
+                if (row.getString(1)==null) {
                     value = "miss";
-                else
+                } else {
                     value = row.getString(1).trim();
+                }
                 return new Tuple2(key,value);
             }
         }).groupByKey().mapValues(new Function<Iterable<String>, String>() {
@@ -1584,26 +1663,29 @@ public class CSA_ETL {
                 while (iter.hasNext())
                 {
                     cur = iter.next().trim();
-                    if (cur.equals("miss"))
+                    if (cur.equals("miss")) {
                         continue;
+                    }
                     if (!str.contains(cur))
                     {
                         str.add(cur);
                         num.add(1);
                     }
-                    else
-                        num.set(str.indexOf(cur),num.get(str.indexOf(cur))+1);
+                    else {
+                        num.set(str.indexOf(cur), num.get(str.indexOf(cur)) + 1);
+                    }
                 }
-                if (str.size()<1)
+                if (str.size()<1) {
                     return null;
+                }
                 int max = 0;
                 int res_indx = -1;
-                for(int i=0;i<str.size();i++)
-                    if (num.get(i)>max)
-                    {
+                for(int i=0;i<str.size();i++) {
+                    if (num.get(i) > max) {
                         max = num.get(i);
                         res_indx = i;
                     }
+                }
                 return str.get(res_indx);
             }
         });
@@ -1668,10 +1750,11 @@ public class CSA_ETL {
                         String vip = row.getString(1).trim();
                         Long count = row.getLong(2);
                         String value;
-                        if(vip.equals("1") || count>=6)
+                        if(vip.equals("1") || count>=6) {
                             value = "1";
-                        else
+                        } else {
                             value = "0";
+                        }
 
                         return new Tuple2(row.getString(0).trim(),value);
                     }

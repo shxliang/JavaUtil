@@ -3,7 +3,9 @@ package utils;
 import java.util.*;
 
 /**
- * Created by ting on 22/06/2017.
+ *
+ * @author ting
+ * @date 22/06/2017
  */
 public class MapUtil {
     /**
