@@ -22,7 +22,7 @@ public class MergeDataToParquet {
         JavaSparkContext jsc = new JavaSparkContext(sc);
         SQLContext sqlContext = new SQLContext(jsc);
 
-        JavaRDD<String> stringJavaRDD = jsc.textFile("hdfs://90.90.90.5:8020/user/TianyuanPan/panfago");
+        JavaRDD<String> stringJavaRDD = jsc.textFile("hdfs://90.90.90.5:8020/USER/TianyuanPan/panfago");
         JavaRDD<Row> rowJavaRDD = stringJavaRDD.map(new Function<String, Row>() {
             @Override
             public Row call(String s) throws Exception {
@@ -54,7 +54,7 @@ public class MergeDataToParquet {
         dataFrame.repartition(1)
                 .write()
                 .mode(SaveMode.Overwrite)
-                .parquet("hdfs://90.90.90.5:8020/user/lsx/17hotwords/mrp_data.parquet");
+                .parquet("hdfs://90.90.90.5:8020/USER/lsx/17hotwords/mrp_data.parquet");
 
         jsc.stop();
     }

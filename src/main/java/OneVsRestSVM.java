@@ -31,7 +31,7 @@ public class OneVsRestSVM {
         SQLContext sqlContext = new SQLContext(jsc);
 
 
-        DataFrame data =sqlContext.read().parquet("hdfs://108.108.108.15/user/root/nlp/indexed.parquet")
+        DataFrame data =sqlContext.read().parquet("hdfs://108.108.108.15/USER/root/nlp/indexed.parquet")
                 .select("id","categoryIndex","vec").cache();
 
 

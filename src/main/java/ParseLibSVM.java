@@ -71,12 +71,12 @@ public class ParseLibSVM {
         SQLContext sqlContext = new SQLContext(jsc);
 
 
-        DataFrame removed = sqlContext.read().parquet("hdfs://108.108.108.15/user/root/nlp/testText.parquet");
+        DataFrame removed = sqlContext.read().parquet("hdfs://108.108.108.15/USER/root/nlp/testText.parquet");
         removed.registerTempTable("removed");
 
 
         //第一列为id(string)，第二列为word(string)，第三列为count(long)
-        DataFrame counted = sqlContext.read().parquet("hdfs://108.108.108.15/user/root/nlp/counted.parquet").cache();
+        DataFrame counted = sqlContext.read().parquet("hdfs://108.108.108.15/USER/root/nlp/counted.parquet").cache();
 
         counted.registerTempTable("counted");
 
@@ -140,7 +140,7 @@ public class ParseLibSVM {
 //        wordList.registerTempTable("wordList");
 //
 //        DataFrame wordListSorted = sqlContext.sql("SELECT * FROM wordList ORDER BY wordId").cache();
-//        wordListSorted.write().parquet("hdfs://108.108.108.15/user/root/nlp/wordList.parquet");
+//        wordListSorted.write().parquet("hdfs://108.108.108.15/USER/root/nlp/wordList.parquet");
 
 
 //        List<Row> rowListSorted = wordListSorted.collectAsList();
@@ -224,10 +224,10 @@ public class ParseLibSVM {
 
 
         //输出格式第一列为文档id(id)，第二列为词id:词频(kv)
-//        parsedLibSVM.write().parquet("hdfs://108.108.108.15/user/root/nlp/testParsed.parquet");
+//        parsedLibSVM.write().parquet("hdfs://108.108.108.15/USER/root/nlp/testParsed.parquet");
 
         //存储词列表，输出格式：(wordId,word)
-//        wordList.write().parquet("hdfs://108.108.108.15/user/root/nlp/testWordList.parquet");
+//        wordList.write().parquet("hdfs://108.108.108.15/USER/root/nlp/testWordList.parquet");
 
 //        parsedLibSVM.show(false);
 

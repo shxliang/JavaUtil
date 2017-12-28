@@ -1,6 +1,4 @@
-package csa; /**
- * Created by lsx on 2016/9/12.
- */
+package csa;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -9,9 +7,10 @@ import org.apache.spark.sql.SQLContext;
 
 import java.io.Serializable;
 
+/**
+ * Created by lsx on 2016/9/12.
+ */
 public class CSA_GG {
-
-
     public static class RoundPrice implements Serializable
     {
         public String idcode;
@@ -54,15 +53,15 @@ public class CSA_GG {
         SQLContext sqlContext = new SQLContext(jsc);
 
 
-        DataFrame alldata = sqlContext.read().parquet("hdfs://108.108.108.15/user/root/csair/alldata.parquet");
+        DataFrame alldata = sqlContext.read().parquet("hdfs://108.108.108.15/USER/root/csair/alldata.parquet");
         alldata.registerTempTable("alldata");
 
 
-        DataFrame user = sqlContext.read().parquet("hdfs://108.108.108.15/user/root/csair/user.parquet");
+        DataFrame user = sqlContext.read().parquet("hdfs://108.108.108.15/USER/root/csair/USER.parquet");
         user.registerTempTable("user");
 
 
-        DataFrame alldata0 = sqlContext.sql("SELECT alldata.*,user.consum FROM alldata,user WHERE alldata.idcode=user.idcode");
+        DataFrame alldata0 = sqlContext.sql("SELECT alldata.*,USER.consum FROM alldata,USER WHERE alldata.idcode=USER.idcode");
         alldata0.registerTempTable("alldata0");
 
 
@@ -73,7 +72,7 @@ public class CSA_GG {
 
 
         //贵属广居旅客用户记录
-        DataFrame ggUser = sqlContext.sql("SELECT * FROM user WHERE idb='贵州' AND resid='CAN'").cache();
+        DataFrame ggUser = sqlContext.sql("SELECT * FROM USER WHERE idb='贵州' AND resid='CAN'").cache();
         ggUser.registerTempTable("ggUser");
 
 
@@ -82,7 +81,7 @@ public class CSA_GG {
 
 
         //贵属广居旅客中同时满足年龄22-45、提前购票3天内、价格不敏感
-//        DataFrame gg_all = sqlContext.sql("SELECT * FROM user WHERE (age BETWEEN 22 AND 45) " +
+//        DataFrame gg_all = sqlContext.sql("SELECT * FROM USER WHERE (age BETWEEN 22 AND 45) " +
 //                                        "AND advan='1' AND idb='贵州' AND resid='CAN' AND consum='nosens'");
 
 

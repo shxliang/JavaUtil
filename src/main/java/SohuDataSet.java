@@ -73,7 +73,7 @@ public class SohuDataSet
         result.repartition(1)
                 .write()
                 .mode(SaveMode.Overwrite)
-                .parquet("hdfs://90.90.90.5:8020/user/lsx/test/Sohu/sogoucs_reduced.parquet");
+                .parquet("hdfs://90.90.90.5:8020/USER/lsx/test/Sohu/sogoucs_reduced.parquet");
 
         System.out.println(result.count());
     }

@@ -17,7 +17,9 @@ import java.io.IOException;
 import java.util.Set;
 
 /**
- * Created by lsx on 2017/1/7.
+ *
+ * @author lsx
+ * @date 2017/1/7
  */
 public class Test {
     public static void main(String[] args) throws IOException {
@@ -28,8 +30,10 @@ public class Test {
         SQLContext sqlContext = new SQLContext(jsc);
 
         DataFrame dataFrame = sqlContext.read()
-                .parquet("hdfs://90.90.90.5:8020/user/lsx/17hotwords/mrp_data.parquet");
-        dataFrame.select("docClass").distinct().show(100);
+                .parquet("hdfs://90.90.90.5:8020/user/ddp/AnalysisProject/17hotwords/wx_data.parquet")
+                .limit(100);
+
+        dataFrame.show();
 
         jsc.stop();
     }

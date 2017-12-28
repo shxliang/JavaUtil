@@ -1,6 +1,4 @@
-package csa; /**
- * Created by lsx on 2016/9/8.
- */
+package csa;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -19,7 +17,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-
+/**
+ * Created by lsx on 2016/9/8.
+ */
 public class CSA_ETL {
 
 
@@ -353,12 +353,12 @@ public class CSA_ETL {
                 .format("com.databricks.spark.csv")
                 .option("inferSchema", "true")
                 .option("header", "true")
-                .load("hdfs://108.108.108.15/user/root/csair/ET报表_2015.01.01~2015.03.31.csv");
+                .load("hdfs://108.108.108.15/USER/root/csair/ET报表_2015.01.01~2015.03.31.csv");
         DataFrame df16 = sqlContext.read()
                 .format("com.databricks.spark.csv")
                 .option("inferSchema", "true")
                 .option("header", "true")
-                .load("hdfs://108.108.108.15/user/root/csair/ET报表_2016.01.01~2016.03.31.csv");
+                .load("hdfs://108.108.108.15/USER/root/csair/ET报表_2016.01.01~2016.03.31.csv");
         DataFrame alld = df15.unionAll(df16);
         alld.registerTempTable("alld");
 
@@ -720,8 +720,8 @@ public class CSA_ETL {
 //        DataFrame alldata = sqlContext.sql("SELECT alldata2.*,round FROM alldata2,round " +
 //                                            "WHERE alldata2.idcode=round.idcode AND alldata2.出票日期=round.date").cache();
 
-        DataFrame alldata = sqlContext.read().parquet("hdfs://108.108.108.15/user/root/csair/alldata_new.parquet").cache();
-//       DataFrame alldata = sqlContext.read().format("com.databricks.spark.csv").option("schema","true").option("header","true").load("hdfs://108.108.108.15/user/root/csair/alldata.csv").cache();
+        DataFrame alldata = sqlContext.read().parquet("hdfs://108.108.108.15/USER/root/csair/alldata_new.parquet").cache();
+//       DataFrame alldata = sqlContext.read().format("com.databricks.spark.csv").option("schema","true").option("header","true").load("hdfs://108.108.108.15/USER/root/csair/alldata.csv").cache();
 
 
         alldata.registerTempTable("alldata");
@@ -738,9 +738,9 @@ public class CSA_ETL {
 
 
 
-//        alldata.write().parquet("hdfs://108.108.108.15/user/root/csair/alldata_new.parquet");
+//        alldata.write().parquet("hdfs://108.108.108.15/USER/root/csair/alldata_new.parquet");
 
-//        alldata.write().format("com.databricks.spark.csv").option("header","true").save("hdfs://108.108.108.15/user/root/csair/alldata.csv");
+//        alldata.write().format("com.databricks.spark.csv").option("header","true").save("hdfs://108.108.108.15/USER/root/csair/alldata.csv");
 
 //        alldata.printSchema();
 
@@ -763,8 +763,8 @@ public class CSA_ETL {
 //        DataFrame od_res = sqlContext.sql("SELECT OD,num16-num15 AS dif FROM od");
 //        DataFrame od_asc = od_res.sort("dif").limit(10);
 //        DataFrame od_des = od_res.sort(org.apache.spark.sql.functions.desc("dif")).limit(10);
-//        od_asc.write().parquet("hdfs://108.108.108.15/user/root/csair/od_asc_top10.parquet");
-//        od_des.write().parquet("hdfs://108.108.108.15/user/root/csair/od_des_top10.parquet");
+//        od_asc.write().parquet("hdfs://108.108.108.15/USER/root/csair/od_asc_top10.parquet");
+//        od_des.write().parquet("hdfs://108.108.108.15/USER/root/csair/od_des_top10.parquet");
 //
 //        DataFrame fromcity15 = sqlContext.sql("SELECT fromcity,sum(旅客人数) AS num15 FROM temp15 GROUP BY fromcity");
 //        DataFrame fromcity16 = sqlContext.sql("SELECT fromcity AS fromcity16,sum(旅客人数) AS num16 FROM temp16 GROUP BY fromcity");
@@ -773,8 +773,8 @@ public class CSA_ETL {
 //        DataFrame fromcity_res = sqlContext.sql("SELECT fromcity,num16-num15 AS dif FROM fromcity");
 //        DataFrame fromcity_asc = fromcity_res.sort("dif").limit(10);
 //        DataFrame fromcity_des = fromcity_res.sort(org.apache.spark.sql.functions.desc("dif")).limit(10);
-//        fromcity_asc.write().parquet("hdfs://108.108.108.15/user/root/csair/fromcity_asc_top10.parquet");
-//        fromcity_des.write().parquet("hdfs://108.108.108.15/user/root/csair/fromcity_des_top10.parquet");
+//        fromcity_asc.write().parquet("hdfs://108.108.108.15/USER/root/csair/fromcity_asc_top10.parquet");
+//        fromcity_des.write().parquet("hdfs://108.108.108.15/USER/root/csair/fromcity_des_top10.parquet");
 //
 //        DataFrame tocity15 = sqlContext.sql("SELECT tocity,sum(旅客人数) AS num15 FROM temp15 GROUP BY tocity");
 //        DataFrame tocity16 = sqlContext.sql("SELECT tocity AS tocity16,sum(旅客人数) AS num16 FROM temp16 GROUP BY tocity");
@@ -783,8 +783,8 @@ public class CSA_ETL {
 //        DataFrame tocity_res = sqlContext.sql("SELECT tocity,num16-num15 AS dif FROM tocity");
 //        DataFrame tocity_asc = tocity_res.sort("dif").limit(10);
 //        DataFrame tocity_des = tocity_res.sort(org.apache.spark.sql.functions.desc("dif")).limit(10);
-//        tocity_asc.write().parquet("hdfs://108.108.108.15/user/root/csair/tocity_asc_top10.parquet");
-//        tocity_des.write().parquet("hdfs://108.108.108.15/user/root/csair/tocity_des_top10.parquet");
+//        tocity_asc.write().parquet("hdfs://108.108.108.15/USER/root/csair/tocity_asc_top10.parquet");
+//        tocity_des.write().parquet("hdfs://108.108.108.15/USER/root/csair/tocity_des_top10.parquet");
 
 
 
@@ -1787,7 +1787,7 @@ public class CSA_ETL {
 
 
 
-        user.write().parquet("hdfs://108.108.108.15/user/root/csair/user_new.parquet");
+        user.write().parquet("hdfs://108.108.108.15/USER/root/csair/user_new.parquet");
 
 
 
