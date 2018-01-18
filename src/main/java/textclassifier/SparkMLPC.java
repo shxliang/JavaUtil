@@ -10,8 +10,8 @@ import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.api.java.UDF3;
 import org.apache.spark.sql.api.java.UDF5;
 import org.apache.spark.sql.types.DataTypes;
-import utils.EvaluateUtil;
-import utils.MapUtil;
+import util.EvaluateUtil;
+import util.MapUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;

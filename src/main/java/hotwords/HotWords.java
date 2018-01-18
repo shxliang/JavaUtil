@@ -15,7 +15,7 @@ import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import scala.Tuple2;
-import utils.MapUtil;
+import util.MapUtil;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;

@@ -6,7 +6,7 @@ import org.apache.spark.ml.classification.NaiveBayes;
 import org.apache.spark.ml.classification.NaiveBayesModel;
 import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.SQLContext;
-import utils.EvaluateUtil;
+import util.EvaluateUtil;
 
 /**
  * Created by lsx on 2017/7/12.

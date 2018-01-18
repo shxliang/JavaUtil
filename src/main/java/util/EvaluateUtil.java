@@ -1,4 +1,4 @@
-package utils;
+package util;
 
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator;
 import org.apache.spark.sql.DataFrame;
