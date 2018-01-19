@@ -45,7 +45,7 @@ public class Test {
 
         DataFrame dataFrame = sqlContext
                 .read()
-                .parquet("hdfs://90.90.90.5:8020/ddp/today");
+                .parquet("hdfs://90.90.90.5:8020/ddp/today/part-r-00000-48c184db-8d28-4921-96e9-d8cc14c93c93.gz.parquet");
         System.out.println(dataFrame.count());
 
     }
