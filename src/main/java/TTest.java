@@ -1,3 +1,4 @@
+import com.alibaba.fastjson.JSONObject;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.VoidFunction;
@@ -18,55 +19,54 @@ import java.util.Random;
  */
 public class TTest {
     public static void main(String[] args) {
-        SparkConf sc = new SparkConf().setMaster("local[*]").setAppName("Test");
-        JavaSparkContext jsc = new JavaSparkContext(sc);
+        StringBuffer buffer = new StringBuffer();
+        int tryNum = 0;
 
-        List<Integer> test = new ArrayList<>();
-        for(int i=0; i < 10000; i++) {
-            test.add(i);
+        while (tryNum < 5)
+        {
+            try {
+                URL url = new URL("http://58.16.65.217:9095/cmsapp/bh/getDocument?docUrl="
+                        + "http://www.qdn.go01802/t20180224_2122373.html");
+                HttpURLConnection httpUrlConn = (HttpURLConnection) url.openConnection();
+
+                httpUrlConn.setDoOutput(false);
+                httpUrlConn.setDoInput(true);
+                httpUrlConn.setUseCaches(false);
+                httpUrlConn.setConnectTimeout(1000);
+                httpUrlConn.setReadTimeout(1000);
+
+                httpUrlConn.setRequestMethod("GET");
+                httpUrlConn.connect();
+
+                // 将返回的输入流转换成字符串
+                InputStream inputStream = httpUrlConn.getInputStream();
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "utf-8");
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                String str = null;
+                while ((str = bufferedReader.readLine()) != null) {
+                    buffer.append(str);
+                }
+                bufferedReader.close();
+                inputStreamReader.close();
+                // 释放资源
+                inputStream.close();
+                inputStream = null;
+                httpUrlConn.disconnect();
+
+                break;
+            } catch (Exception e) {
+                System.out.println(e.getStackTrace());
+                tryNum ++;
+            }
         }
-
-        jsc.parallelize(test)
-                .foreach(new VoidFunction<Integer>() {
-                    @Override
-                    public void call(Integer integer) throws Exception {
-                        StringBuffer buffer = new StringBuffer();
-
-                        try {
-                            URL url = new URL("http://108.108.108.141:32438/");
-                            HttpURLConnection httpUrlConn = (HttpURLConnection)url.openConnection();
-
-                            httpUrlConn.setDoOutput(false);
-                            httpUrlConn.setDoInput(true);
-                            httpUrlConn.setUseCaches(false);
-
-                            httpUrlConn.setRequestMethod("GET");
-                            httpUrlConn.connect();
-
-                            // 将返回的输入流转换成字符串
-                            InputStream inputStream = httpUrlConn.getInputStream();
-                            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "utf-8");
-                            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
-                            String str = null;
-                            while ((str = bufferedReader.readLine()) != null) {
-                                buffer.append(str);
-                            }
-                            bufferedReader.close();
-                            inputStreamReader.close();
-                            // 释放资源
-                            inputStream.close();
-                            inputStream = null;
-                            httpUrlConn.disconnect();
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        System.out.println(buffer.toString());
-                    }
-                });
-
-        jsc.stop();
+        JSONObject jsonObject = JSONObject.parseObject(buffer.toString());
+        if (!jsonObject.isEmpty())
+        {
+            System.out.println(jsonObject);
+        }else
+        {
+            System.out.println("not find");
+        }
     }
 }
