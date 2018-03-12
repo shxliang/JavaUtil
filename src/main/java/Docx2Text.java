@@ -27,12 +27,12 @@ public class Docx2Text {
 
 
     /**
-     * 读取word文件内容 
+     * 读取word文件内容
      *
      * @param path
      * @return buffer
      */
-    public String readWord(String path) {
+    public String readFromWord(String path) {
         String buffer = "";
         try {
             if (path.endsWith(".doc")) {
@@ -48,7 +48,6 @@ public class Docx2Text {
             } else {
                 System.out.println("此文件不是word文件！");
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -56,16 +55,14 @@ public class Docx2Text {
         return buffer;
     }
 
-    public static List<String> parseParagraph(String[] paragraphs, List<String> titles)
-    {
+    public static List<String> paragraphFilter(String[] paragraphs, List<String> titles) {
         int paraIndex = 0;
         int titleIndex = 0;
         List<String> parsedParagraph = new ArrayList<>();
         while (paraIndex < paragraphs.length) {
             String para = paragraphs[paraIndex];
 
-            if (titleIndex == titles.size())
-            {
+            if (titleIndex == titles.size()) {
                 parsedParagraph.add(para);
                 paraIndex++;
                 continue;
@@ -76,12 +73,15 @@ public class Docx2Text {
             Matcher afterMatcher = numKeyPatternAfter.matcher(para);
             Matcher beforeMatcher = numKeyPatternBefore.matcher(para);
 
+            //当前行为标题
             if (para.equals(titleParts[0])) {
                 parsedParagraph.add(title);
                 paraIndex++;
                 titleIndex++;
-            } else if (afterMatcher.find() || beforeMatcher.find()) {
-                parsedParagraph.add(para);
+            }
+            //当前行为枚举项
+            else if (beforeMatcher.find()) {
+                parsedParagraph.add(para.replaceAll("是  2 否", "是\t2 否"));
                 paraIndex++;
             } else {
                 paraIndex++;
@@ -90,34 +90,27 @@ public class Docx2Text {
         return parsedParagraph;
     }
 
-    public static Map<String, String> parseToMap(String str)
-    {
+    public static Map<String, String> parseToMap(String str) {
         Map<String, String> result = new HashMap<>();
         int start = 0;
         String curStr = str;
         String key = null;
         String value = null;
-        while (curStr.length() > 0)
-        {
+
+        while (curStr.length() > 0) {
             Matcher beforeMatcher = numKeyPatternBefore.matcher(curStr);
 
-            if (beforeMatcher.find())
-            {
-
+            if (beforeMatcher.find()) {
                 start = beforeMatcher.start();
 
-                if (start > 0)
-                {
+                if (start > 0) {
                     value = curStr.substring(0, start).trim();
                     result.put(key, value);
                 }
 
                 key = beforeMatcher.group().trim();
-                curStr = curStr.substring(beforeMatcher.group().length());
-
-            }
-            else
-            {
+                curStr = curStr.substring(beforeMatcher.end());
+            } else {
                 value = curStr.trim();
                 result.put(key, value);
                 break;
@@ -126,102 +119,71 @@ public class Docx2Text {
         return result;
     }
 
-    public static JSONObject recusiveParse(List<String> paragraph, int level)
-    {
+    public static JSONObject recursiveParse(List<String> paragraph, int level) {
         List<Integer> index = new ArrayList<>();
         Map<String, Map<String, String>> map = new HashMap<>();
         String curKey = null;
         JSONObject result = new JSONObject();
 
-        for(int i = 0; i < paragraph.size(); i++)
-        {
+        for (int i = 0; i < paragraph.size(); i++) {
             String para = paragraph.get(i);
-            if (para.contains("-" + level))
-            {
+
+            //找到与传入层级相同的标题
+            if (para.contains("-" + level)) {
                 index.add(i);
                 continue;
             }
 
-            Matcher afterMatcher = numKeyPatternAfter.matcher(para);
             Matcher beforeMatcher = numKeyPatternBefore.matcher(para);
-            if (afterMatcher.find() || beforeMatcher.find())
-            {
-                int afterFirst = Integer.MAX_VALUE;
-                int beforeFirst = Integer.MAX_VALUE;
+            if (beforeMatcher.find()) {
+                int beforeFirst;
 
-                if (afterMatcher.find())
+                beforeFirst = beforeMatcher.start();
+
+                String key;
+
+                if (beforeFirst > 0)
                 {
-                    afterFirst = afterMatcher.start();
-                }
-                if (beforeMatcher.find())
-                {
-                    beforeFirst = beforeMatcher.start();
-                }
-
-                int first = afterFirst < beforeFirst ? afterFirst : beforeFirst;
-
-                String key = null;
-
-                try {
-                    key = para.substring(0, first).trim();
-                }catch (Exception e)
-                {
-                    System.out.println(afterMatcher.find());
-                    System.out.println(beforeMatcher.find());
-                    System.out.println(afterFirst);
-                    System.out.println(beforeFirst);
-                    System.out.println(para);
-                }
-
-                Matcher numMatcher = numPattern.matcher(key);
-                if (!numMatcher.matches())
-                {
+                    key = para.substring(0, beforeFirst).trim();
                     curKey = key;
-                    String keyValueStr = para.substring(first, para.length());
+                    String keyValueStr = para.substring(beforeFirst, para.length());
                     map.put(curKey, parseToMap(keyValueStr));
-                }
-                else
-                {
+                } else {
                     map.get(curKey).putAll(parseToMap(para));
                 }
             }
         }
 
-        if (index.size() < 1 && map.size() > 0)
-        {
-            for (String key : map.keySet())
-            {
+        //当前块没有找到标题，并且存在枚举项
+        if (index.size() < 1 && map.size() > 0) {
+            for (String key : map.keySet()) {
                 result.put(key, map.get(key));
             }
-        }
-        else if(index.size() > 0)
-        {
-            for(int i = 0; i < index.size(); i++)
-            {
+        } else if (index.size() > 0) {
+            for (int i = 0; i < index.size(); i++) {
+                //得到标题
                 String key = paragraph.get(index.get(i)).split("-")[0];
                 List<String> subParagraph = paragraph.subList(index.get(i),
                         (i + 1) < index.size() ? index.get(i + 1) : paragraph.size());
-                result.put(key, recusiveParse(subParagraph, level + 1));
+                result.put(key, recursiveParse(subParagraph, level + 1));
             }
         }
 
         return result;
     }
 
-
-
     public static void main(String[] args) throws OpenXML4JException, XmlException, IOException {
         Docx2Text tp = new Docx2Text();
-        String path = "D:\\分析项目\\智慧法院\\法院标准\\\\2015人民法院案件信息业务标准\\15法标.docx";
-        String content = tp.readWord(path);
-        List<Tuple2<String, String>> tuple2List= new ArrayList<>();
+        String path = "/Users/lsx/IdeaProjects/MyAwesomeSpark/src/main/java/data/15法标.docx";
+        String content = tp.readFromWord(path);
+        List<Tuple2<String, String>> tuple2List = new ArrayList<>();
         Tuple2<String, String> curTup = null;
         String[] paragraphs = content.split("\n");
         List<String> titles = WordUtil.getWordTitles2007(path);
 
-        List<String> parsedParagraph = parseParagraph(paragraphs, titles);
+        List<String> parsedParagraph = paragraphFilter(paragraphs, titles);
 
-        JSONObject result = recusiveParse(parsedParagraph, 1);
+        JSONObject result = recursiveParse(parsedParagraph, 1);
 
         System.out.println(result);
     }
