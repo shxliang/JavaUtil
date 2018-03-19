@@ -19,7 +19,7 @@ import scala.Tuple2;
 /**
  * @author lsx
  */
-public class Docx2Text {
+public class WordParser {
     private static Pattern sepPattern = Pattern.compile("[ \t]");
     private static Pattern numPattern = Pattern.compile("\\d+");
     private static Pattern numKeyPatternAfter = Pattern.compile("\\d+[ ]?");
@@ -173,8 +173,8 @@ public class Docx2Text {
     }
 
     public static void main(String[] args) throws OpenXML4JException, XmlException, IOException {
-        Docx2Text tp = new Docx2Text();
-        String path = "/Users/lsx/IdeaProjects/MyAwesomeSpark/src/main/java/data/15法标.docx";
+        WordParser tp = new WordParser();
+        String path = "C:\\Users\\lsx\\IdeaProjects\\MyAwesomeSpark\\src\\main\\java\\data\\15fb.docx";
         String content = tp.readFromWord(path);
         List<Tuple2<String, String>> tuple2List = new ArrayList<>();
         Tuple2<String, String> curTup = null;

@@ -22,24 +22,17 @@ public class Test {
     public static final String password = "1cc886c6c6b8";
 
     public static void main(String[] args) throws IOException, InterruptedException {
-//        System.setProperty("hadoop.home.dir","D:\\winutils");
-//
-//        SparkConf sc = new SparkConf();
-//        sc.setMaster("local[*]").setAppName("text");
-//
-//        JavaSparkContext jsc = new JavaSparkContext(sc);
-//        SQLContext sqlContext = new SQLContext(jsc);
-//
-//        DataFrame test = sqlContext.read()
-//                .parquet("hdfs://90.90.90.5:8020/ddp/today");
-//        System.out.println(test.count());
+        System.setProperty("hadoop.home.dir","D:\\winutils");
 
+        SparkConf sc = new SparkConf();
+        sc.setMaster("local[*]").setAppName("text");
 
-        List<String> test = new ArrayList<>();
-        test.add("a");
-        test.add("b");
-        String s = "a";
-        System.out.println(test.contains(s));
+        JavaSparkContext jsc = new JavaSparkContext(sc);
+        SQLContext sqlContext = new SQLContext(jsc);
+
+        DataFrame test = sqlContext.read()
+                .parquet("hdfs://90.90.90.5:8020/user/ddp/AnalysisProject/wx/wx_keyword.parquet");
+        System.out.println(test.filter("keywords IS NOT NULL").count());
 
     }
 

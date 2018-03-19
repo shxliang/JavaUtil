@@ -110,5 +110,11 @@
             <artifactId>poi-scratchpad</artifactId>
             <version>3.16</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>1.8.13</version>
+        </dependency>
     </dependencies>
 </project>
