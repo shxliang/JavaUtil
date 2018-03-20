@@ -1,10 +1,10 @@
-// JAVA program for implementation of KMP pattern
+package util;// JAVA program for implementation of util.KMP pattern
 // searching algorithm
 
 import java.util.ArrayList;
 import java.util.List;
 
-class KMP
+public class KMP
 {
     public static List<Integer> KMPSearch(String pat, String txt)
     {
@@ -54,7 +54,7 @@ class KMP
         return result;
     }
 
-    static void computeLPSArray(String pat, int M, int lps[])
+    public static void computeLPSArray(String pat, int M, int lps[])
     {
         // length of the previous longest prefix suffix
         int len = 0;

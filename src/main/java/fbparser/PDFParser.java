@@ -1,7 +1,10 @@
+package fbparser;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
+import util.KMP;
 
 import java.io.*;
 import java.util.*;
@@ -314,26 +317,26 @@ public class PDFParser {
     }
 
     public static void main(String[] args) throws Exception {
-        String inputPath = "fb/4.FYB_T_51002-2016_刑事案件信息技术规范.pdf";
+        String inputPath = "fb/16.FYB_T_51016-2016_音视频应用数据信息技术规范.pdf";
         String textOutputPath = inputPath.replaceAll(".pdf", ".txt");
         String filterOutputPath = textOutputPath.replace(".txt", "") + "_filter.txt";
 
-//        pdf2text(inputPath, outputPath);
+//        pdf2text(inputPath, textOutputPath);
 
-//        List<String> paragraph = readFromTxt(textOutputPath);
-//        List<String> titles = getTitles(textOutputPath);
-//        List<String> parsedParagraph = paragraphFilter(paragraph, titles, "FYB/T 51002—2016");
-//
-//        FileOutputStream outSTr = new FileOutputStream(new File(filterOutputPath));
-//        BufferedOutputStream buff = new BufferedOutputStream(outSTr);
-//        for (String para : parsedParagraph) {
-//            buff.write((para + "\n").getBytes());
-//        }
-//        buff.flush();
-//        buff.close();
+        List<String> paragraph = readFromTxt(textOutputPath);
+        List<String> titles = getTitles(textOutputPath);
+        List<String> parsedParagraph = paragraphFilter(paragraph, titles, "FYB/T 51016—2016");
 
-        List<String> parsedParagraph = readFromTxt(filterOutputPath);
-        JSONObject result = (JSONObject)recursiveParse(parsedParagraph, 1);
-        System.out.println(result);
+        FileOutputStream outSTr = new FileOutputStream(new File(filterOutputPath));
+        BufferedOutputStream buff = new BufferedOutputStream(outSTr);
+        for (String para : parsedParagraph) {
+            buff.write((para + "\n").getBytes());
+        }
+        buff.flush();
+        buff.close();
+
+//        List<String> parsedParagraph = readFromTxt(filterOutputPath);
+//        JSONObject result = (JSONObject)recursiveParse(parsedParagraph, 1);
+//        System.out.println(result);
     }
 }

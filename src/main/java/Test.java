@@ -30,10 +30,22 @@ public class Test {
         JavaSparkContext jsc = new JavaSparkContext(sc);
         SQLContext sqlContext = new SQLContext(jsc);
 
-        DataFrame test = sqlContext.read()
-                .parquet("hdfs://90.90.90.5:8020/user/ddp/AnalysisProject/wx/wx_keyword.parquet");
-        System.out.println(test.filter("keywords IS NOT NULL").count());
+        registerUDF(sqlContext);
 
+        DataFrame test = sqlContext.read()
+                .parquet("hdfs://90.90.90.5:8020/user/lsx/MRPResult/p_allData.parquet/year=2018");
+        test = test.select("docId", "title", "text")
+                .withColumn("isContain",
+                        functions.callUDF("containPersonName", functions.col("text")));
+
+        test = test.filter("isContain='true'")
+                .sample(false, 0.01)
+                .drop("isContain")
+                .repartition(1);
+
+        test.write()
+                .mode(SaveMode.Overwrite)
+                .json("D:\\分析项目\\错别字识别校正\\领导人指称称谓纠正\\data.json");
     }
 
 
@@ -48,6 +60,26 @@ public class Test {
                 }
                 String content = new String(s);
                 return ParseUtil.formatHtml(content);
+            }
+        }, DataTypes.StringType);
+
+        sqlContext.udf().register("containPersonName", new UDF1<String, String>() {
+            @Override
+            public String call(String s) throws Exception {
+                boolean isContain = s.contains("习近平")
+                        || s.contains("李源潮")
+                        || s.contains("李克强")
+                        || s.contains("张高丽")
+                        || s.contains("刘延东")
+                        || s.contains("汪洋")
+                        || s.contains("马凯")
+                        || s.contains("杨晶")
+                        || s.contains("常万全")
+                        || s.contains("杨洁篪")
+                        || s.contains("郭声琨")
+                        || s.contains("王勇");
+
+                return isContain ? "true" : "false";
             }
         }, DataTypes.StringType);
     }
