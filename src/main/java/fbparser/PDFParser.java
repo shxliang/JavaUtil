@@ -118,7 +118,11 @@ public class PDFParser {
             String para = paragraphs.get(paraIndex);
 
             if (titleIndex == titles.size()) {
-                if (para.trim().contains("见表") || para.startsWith("表 ") || para.startsWith("序号 ")) {
+                if (para.trim().contains("见表")
+                        || para.startsWith("表 ")
+                        || para.startsWith("序号 ")
+                        || para.startsWith("代 码")
+                        || "是".equals(para.trim())) {
                     paraIndex++;
                 } else if (para.trim().equals(code)) {
                     paraIndex += 2;
@@ -140,7 +144,10 @@ public class PDFParser {
             }
             //当前行为内容
             else if (para.trim().length() > 0) {
-                if (para.trim().contains("见表") || para.startsWith("表") || para.startsWith("序号")) {
+                if (para.trim().contains("见表")
+                        || para.startsWith("表")
+                        || para.startsWith("序号")
+                        || para.startsWith("代 码")) {
                     paraIndex++;
                 } else if (para.trim().equals(code)) {
                     paraIndex += 2;
@@ -192,7 +199,6 @@ public class PDFParser {
 
     public static JSONArray parseParagraph2JSONArray(List<String> paragraph) {
 //        System.out.println(paragraph);
-
         JSONArray result = new JSONArray();
         List<Integer> lastNumIndexList = new LinkedList<>();
         List<Integer> typeIndexList = new LinkedList<>();
@@ -265,7 +271,7 @@ public class PDFParser {
 
     public static Map<String, String> parse2Enum(List<String> paragraph)
     {
-//        System.out.println(paragraph);
+        System.out.println(paragraph);
         Map<String, String> enumMap = new HashMap<>();
         List<String> cacheList = new LinkedList<>();
         String curKey = null;
@@ -316,6 +322,80 @@ public class PDFParser {
         return enumMap;
     }
 
+    public static JSONObject parseCaseTypeCode(String filePath) throws IOException {
+        JSONObject result = new JSONObject();
+        File filename = new File(filePath);
+        // 建立一个输入流对象reader
+        InputStreamReader reader = new InputStreamReader(new FileInputStream(filename));
+        BufferedReader br = new BufferedReader(reader);
+        String line;
+        while ((line = br.readLine()) != null) {
+            String[] parts = line.split("\t");
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("code", parts[0]);
+            if (parts.length == 3)
+            {
+                jsonObject.put("abb", parts[2]);
+            }
+            result.put(parts[1], jsonObject);
+        }
+        return result;
+    }
+
+    public static JSONObject parseCourtCode(List<String> paragraph)
+    {
+        JSONObject result = new JSONObject();
+        for(String para : paragraph)
+        {
+            if (para.contains("--") || para.trim().length() < 1)
+            {
+                continue;
+            }
+            String[] parts = para.trim().split(" +");
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("value", parts[3]);
+            jsonObject.put("abb", parts[4] + (parts.length == 6 ? parts[5] : ""));
+            result.put(parts[0], jsonObject);
+        }
+        return result;
+    }
+
+    public static JSONObject parseCauseCode(List<String> paragraph)
+    {
+        JSONObject result = new JSONObject();
+        for(String para : paragraph)
+        {
+            if (para.trim().length() < 1)
+            {
+                continue;
+            }
+            String[] parts = para.trim().split(" +");
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("value", parts[3]);
+            jsonObject.put("parentCode", parts[1]);
+            jsonObject.put("gradeCode", parts[2]);
+            result.put(parts[0], jsonObject);
+        }
+        return result;
+    }
+
+    public static JSONObject parseCauseCode2(List<String> paragraph)
+    {
+        JSONObject result = new JSONObject();
+        for(String para : paragraph)
+        {
+            if (para.trim().length() < 1)
+            {
+                continue;
+            }
+            String[] parts = para.trim().split(" +");
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("value", parts[1]);
+            result.put(parts[0], jsonObject);
+        }
+        return result;
+    }
+
     public static void main(String[] args) throws Exception {
         String inputPath = "fb/16.FYB_T_51016-2016_音视频应用数据信息技术规范.pdf";
         String textOutputPath = inputPath.replaceAll(".pdf", ".txt");
@@ -323,20 +403,34 @@ public class PDFParser {
 
 //        pdf2text(inputPath, textOutputPath);
 
-        List<String> paragraph = readFromTxt(textOutputPath);
-        List<String> titles = getTitles(textOutputPath);
-        List<String> parsedParagraph = paragraphFilter(paragraph, titles, "FYB/T 51016—2016");
+//        List<String> paragraph = readFromTxt(textOutputPath);
+//        List<String> titles = getTitles(textOutputPath);
+//        List<String> parsedParagraph = paragraphFilter(paragraph, titles, "FYB/T 51202—2016");
+//
+//        FileOutputStream outSTr = new FileOutputStream(new File(filterOutputPath));
+//        BufferedOutputStream buff = new BufferedOutputStream(outSTr);
+//        for (String para : parsedParagraph) {
+//            buff.write((para + "\n").getBytes());
+//        }
+//        buff.flush();
+//        buff.close();
 
-        FileOutputStream outSTr = new FileOutputStream(new File(filterOutputPath));
-        BufferedOutputStream buff = new BufferedOutputStream(outSTr);
-        for (String para : parsedParagraph) {
-            buff.write((para + "\n").getBytes());
-        }
-        buff.flush();
-        buff.close();
+        List<String> parsedParagraph = readFromTxt(filterOutputPath);
+        JSONObject result = (JSONObject)recursiveParse(parsedParagraph, 1);
+        System.out.println(result);
+
+
+//        System.out.println(parseCaseTypeCode("fb/19.FYB_T_51201-2016_案件类型代码技术规范.txt"));
+
 
 //        List<String> parsedParagraph = readFromTxt(filterOutputPath);
-//        JSONObject result = (JSONObject)recursiveParse(parsedParagraph, 1);
+//        JSONObject result = parseCourtCode(parsedParagraph);
 //        System.out.println(result);
+
+
+//        List<String> parsedParagraph = readFromTxt(textOutputPath);
+//        JSONObject result = parseCauseCode2(parsedParagraph);
+//        System.out.println(result);
+
     }
 }

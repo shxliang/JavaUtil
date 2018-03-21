@@ -25,8 +25,7 @@ public class SegmentTest {
         List<Term> recognition = new NatureRecognition().recognition(words, 0) ;
         System.out.println(recognition);
 
-        for (Term term : recognition)
-        {
+        for (Term term : recognition) {
             Result terms = ToAnalysis.parse(term.getName());
             System.out.println(terms);
         }
