@@ -49,5 +49,4 @@ public class SegDemo {
     List<String> segmented = segmenter.segmentString(sample);
     System.out.println(segmented);
   }
-
 }

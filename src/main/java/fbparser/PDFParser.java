@@ -100,7 +100,7 @@ public class PDFParser {
             while ((line = br.readLine()) != null) {
                 Matcher titleMatcher = titlePattern.matcher(line);
                 if (titleMatcher.find()) {
-                    int level = KMP.KMPSearch(".", line).size() + 1;
+                    int level = KMP.search(".", line).size() + 1;
                     titles.add(line + "--" + level);
                 }
             }
@@ -397,7 +397,7 @@ public class PDFParser {
     }
 
     public static void main(String[] args) throws Exception {
-        String inputPath = "fb/16.FYB_T_51016-2016_音视频应用数据信息技术规范.pdf";
+        String inputPath = "fb/19.FYB_T_51201-2016_案件类型代码技术规范.pdf";
         String textOutputPath = inputPath.replaceAll(".pdf", ".txt");
         String filterOutputPath = textOutputPath.replace(".txt", "") + "_filter.txt";
 
@@ -415,19 +415,22 @@ public class PDFParser {
 //        buff.flush();
 //        buff.close();
 
-        List<String> parsedParagraph = readFromTxt(filterOutputPath);
-        JSONObject result = (JSONObject)recursiveParse(parsedParagraph, 1);
-        System.out.println(result);
+//        List<String> parsedParagraph = readFromTxt(filterOutputPath);
+//        JSONObject result = (JSONObject)recursiveParse(parsedParagraph, 1);
+//        System.out.println(result);
 
 
-//        System.out.println(parseCaseTypeCode("fb/19.FYB_T_51201-2016_案件类型代码技术规范.txt"));
+        //转换案件类型代码
+        System.out.println(parseCaseTypeCode("fb/19.FYB_T_51201-2016_案件类型代码技术规范.txt"));
 
 
+        //转换法院代码
 //        List<String> parsedParagraph = readFromTxt(filterOutputPath);
 //        JSONObject result = parseCourtCode(parsedParagraph);
 //        System.out.println(result);
 
 
+        //转换案由代码
 //        List<String> parsedParagraph = readFromTxt(textOutputPath);
 //        JSONObject result = parseCauseCode2(parsedParagraph);
 //        System.out.println(result);

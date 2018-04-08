@@ -2,11 +2,16 @@ import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.ling.CoreLabel;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.function.Function;
 import org.apache.spark.mllib.linalg.*;
 import org.apache.spark.sql.*;
 import org.apache.spark.sql.api.java.UDF1;
 import org.apache.spark.sql.types.*;
+import scala.Tuple2;
 import util.ParseUtil;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ThreadFactory;
@@ -30,22 +35,36 @@ public class Test {
         JavaSparkContext jsc = new JavaSparkContext(sc);
         SQLContext sqlContext = new SQLContext(jsc);
 
-        registerUDF(sqlContext);
-
-        DataFrame test = sqlContext.read()
-                .parquet("hdfs://90.90.90.5:8020/user/lsx/MRPResult/p_allData.parquet/year=2018");
-        test = test.select("docId", "title", "text")
-                .withColumn("isContain",
-                        functions.callUDF("containPersonName", functions.col("text")));
-
-        test = test.filter("isContain='true'")
-                .sample(false, 0.01)
-                .drop("isContain")
-                .repartition(1);
-
-        test.write()
-                .mode(SaveMode.Overwrite)
-                .json("D:\\分析项目\\错别字识别校正\\领导人指称称谓纠正\\data.json");
+        DataFrame df = sqlContext.read()
+                .json("C:\\Users\\lsx\\Downloads\\民事一审案件_9015-100_2.txt");
+        List<Tuple2<String, String>> tuple2s = df.select("case_code", "judgment")
+                .toJavaRDD()
+                .map(new Function<Row, Tuple2<String, String>>() {
+                    @Override
+                    public Tuple2<String, String> call(Row row) throws Exception {
+                        return new Tuple2<>(row.getString(0),
+                                row.getString(1));
+                    }
+                })
+                .collect();
+        String dirPath = "民事一审案件_9015-100_2/";
+        for (Tuple2<String, String> tuple2 : tuple2s)
+        {
+            String caseId = tuple2._1();
+            FileWriter writer = new FileWriter(dirPath + caseId);
+            BufferedWriter bw = new BufferedWriter(writer);
+            String[] parts = tuple2._2().split("[\n\r]");
+            for (String part : parts)
+            {
+                if (part.trim().length() < 1)
+                {
+                    continue;
+                }
+                bw.write(part + "\n");
+            }
+            bw.close();
+            writer.close();
+        }
     }
 
 

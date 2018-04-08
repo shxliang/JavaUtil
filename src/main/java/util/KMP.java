@@ -4,10 +4,8 @@ package util;// JAVA program for implementation of util.KMP pattern
 import java.util.ArrayList;
 import java.util.List;
 
-public class KMP
-{
-    public static List<Integer> KMPSearch(String pat, String txt)
-    {
+public class KMP {
+    public static List<Integer> search(String pat, String txt) {
         List<Integer> result = new ArrayList<>();
 
         int M = pat.length();
@@ -21,26 +19,22 @@ public class KMP
 
         // Preprocess the pattern (calculate lps[]
         // array)
-        computeLPSArray(pat,M,lps);
+        computeLPSArray(pat, M, lps);
 
         // index for txt[]
         int i = 0;
-        while (i < N)
-        {
-            if (pat.charAt(j) == txt.charAt(i))
-            {
+        while (i < N) {
+            if (pat.charAt(j) == txt.charAt(i)) {
                 j++;
                 i++;
             }
-            if (j == M)
-            {
+            if (j == M) {
                 result.add(i - j);
-                j = lps[j-1];
+                j = lps[j - 1];
             }
 
             // mismatch after j matches
-            else if (i < N && pat.charAt(j) != txt.charAt(i))
-            {
+            else if (i < N && pat.charAt(j) != txt.charAt(i)) {
                 // Do not match lps[0..lps[j-1]] characters,
                 // they will match anyway
                 if (j != 0) {
@@ -54,8 +48,7 @@ public class KMP
         return result;
     }
 
-    public static void computeLPSArray(String pat, int M, int lps[])
-    {
+    public static void computeLPSArray(String pat, int M, int lps[]) {
         // length of the previous longest prefix suffix
         int len = 0;
         int i = 1;
@@ -63,27 +56,22 @@ public class KMP
         lps[0] = 0;
 
         // the loop calculates lps[i] for i = 1 to M-1
-        while (i < M)
-        {
-            if (pat.charAt(i) == pat.charAt(len))
-            {
+        while (i < M) {
+            if (pat.charAt(i) == pat.charAt(len)) {
                 len++;
                 lps[i] = len;
                 i++;
-            }
-            else // (pat[i] != pat[len])
+            } else // (pat[i] != pat[len])
             {
                 // This is tricky. Consider the example.
                 // AAACAAAA and i = 7. The idea is similar
                 // to search step.
-                if (len != 0)
-                {
-                    len = lps[len-1];
+                if (len != 0) {
+                    len = lps[len - 1];
 
                     // Also, note that we do not increment
                     // i here
-                }
-                else // if (len == 0)
+                } else // if (len == 0)
                 {
                     lps[i] = len;
                     i++;
@@ -92,11 +80,10 @@ public class KMP
         }
     }
 
-    public static void main(String args[])
-    {
+    public static void main(String args[]) {
         String txt = "ABABDABACDABABCABAB";
         String pat = "ABA";
-        System.out.println(KMP.KMPSearch(pat,txt));
+        System.out.println(KMP.search(pat, txt));
     }
 }
 // This code has been contributed by Amit Khandelwal.
