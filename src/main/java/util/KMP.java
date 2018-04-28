@@ -1,5 +1,4 @@
-package util;// JAVA program for implementation of util.KMP pattern
-// searching algorithm
+package util;
 
 import java.util.ArrayList;
 import java.util.List;

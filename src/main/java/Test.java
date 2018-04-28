@@ -1,14 +1,11 @@
-import edu.stanford.nlp.ie.crf.CRFClassifier;
-import edu.stanford.nlp.ling.CoreLabel;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
-import org.apache.spark.mllib.linalg.*;
 import org.apache.spark.sql.*;
 import org.apache.spark.sql.api.java.UDF1;
 import org.apache.spark.sql.types.*;
 import scala.Tuple2;
-import util.ParseUtil;
+import util.HtmlUtil;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -78,7 +75,7 @@ public class Test {
                     return null;
                 }
                 String content = new String(s);
-                return ParseUtil.formatHtml(content);
+                return HtmlUtil.formatHtml(content);
             }
         }, DataTypes.StringType);
 

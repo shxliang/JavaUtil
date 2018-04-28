@@ -6,7 +6,7 @@ import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.api.java.UDF1;
 import org.apache.spark.sql.functions;
 import org.apache.spark.sql.types.DataTypes;
-import util.ParseUtil;
+import util.HtmlUtil;
 
 /**
  *
@@ -35,7 +35,7 @@ public class Mysql2Parquet {
                     return null;
                 }
                 String content = new String(s);
-                return ParseUtil.formatHtml(content);
+                return HtmlUtil.formatHtml(content);
             }
         }, DataTypes.StringType);
 
