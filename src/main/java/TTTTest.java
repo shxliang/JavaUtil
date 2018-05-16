@@ -1,4 +1,6 @@
 import com.alibaba.fastjson.JSONObject;
+import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.seg.NShort.NShortSegment;
 
 import java.io.*;
 import java.util.LinkedList;
@@ -10,43 +12,7 @@ import java.util.List;
  */
 public class TTTTest {
     public static void main(String[] args) throws IOException {
-//        File leaderNameFile = new File("D:\\分析项目\\错别字\\3\\leaderName.txt");
-//        BufferedReader leaderNameReader = new BufferedReader(new FileReader(leaderNameFile));
-//        String leaderNameLine = null;
-//        List<String> leaderNameList = new LinkedList<>();
-//        while ((leaderNameLine = leaderNameReader.readLine()) != null) {
-//            leaderNameList.add(leaderNameLine);
-//        }
-//        leaderNameReader.close();
-
-
-
-
-        File file = new File("D:\\datas\\cnews\\cnews.test.txt");
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        String line = null;
-        List<String> lines = new LinkedList<>();
-        int id = 0;
-        while ((line = reader.readLine()) != null) {
-            JSONObject jsonObject = new JSONObject();
-            String[] parts = line.split("\t");
-            if (!"时政".equals(parts[0])) {
-                continue;
-            }
-            jsonObject.put("id", String.valueOf(id++));
-            jsonObject.put("text", parts[1]);
-            lines.add(jsonObject.toJSONString());
-        }
-        reader.close();
-
-
-        FileWriter fileWriter = new FileWriter("D:\\Downloads\\cnews_test.txt");
-        BufferedWriter writer = new BufferedWriter(fileWriter);
-        for (String str : lines) {
-            writer.write(str);
-            writer.write("\n");
-        }
-        writer.close();
-        fileWriter.close();
+        String text = "孙志刚强调当前要集中精力抓好灾后恢复重建各项工作把倒塌受损民房重建修缮作为重中之重妥善安排受灾群众基本生产生活";
+        System.out.println(NShortSegment.parse(text));
     }
 }

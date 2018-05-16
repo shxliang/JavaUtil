@@ -15,9 +15,10 @@ public class RedisClient {
     /**
      * 初始化连接池
      */
-    private static JedisPool pool = new JedisPool(new GenericObjectPoolConfig(), RedisConfig.HOST, 6379, 10000, "abcabc");
+//    private static JedisPool pool = new JedisPool(new GenericObjectPoolConfig(), RedisConfig.HOST, 6379, 10000, "abcabc");
+    private static JedisPool pool = new JedisPool(new GenericObjectPoolConfig(), RedisConfig.HOST, 6379);
 
-    public static Jedis getJedis() {
+    private static Jedis getJedis() {
         Jedis jedis = pool.getResource();
         jedis.select(RedisConfig.DB);
         return jedis;

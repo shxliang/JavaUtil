@@ -1,66 +1,35 @@
-import com.alibaba.fastjson.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.DataFrame;
+import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.SaveMode;
 
 /**
- *
  * @author lsx
  * @date 2017/9/30
  */
 public class TTest {
     public static void main(String[] args) {
-        StringBuffer buffer = new StringBuffer();
-        int tryNum = 0;
+        System.setProperty("hadoop.home.dir", "D:\\winutils");
 
-        while (tryNum < 5)
-        {
-            try {
-                URL url = new URL("http://58.16.65.217:9095/cmsapp/bh/getDocument?docUrl="
-                        + "http://www.qdn.go01802/t20180224_2122373.html");
-                HttpURLConnection httpUrlConn = (HttpURLConnection) url.openConnection();
+        SparkConf sc = new SparkConf();
+        sc.setMaster("local[*]").setAppName("text");
 
-                httpUrlConn.setDoOutput(false);
-                httpUrlConn.setDoInput(true);
-                httpUrlConn.setUseCaches(false);
-                httpUrlConn.setConnectTimeout(1000);
-                httpUrlConn.setReadTimeout(1000);
+        JavaSparkContext jsc = new JavaSparkContext(sc);
+        SQLContext sqlContext = new SQLContext(jsc);
 
-                httpUrlConn.setRequestMethod("GET");
-                httpUrlConn.connect();
+        DataFrame dataFrame = sqlContext.read()
+                .parquet("hdfs://90.90.90.5:8020/user/ddp/AnalysisProject/topic/curData.parquet");
+        dataFrame = dataFrame.filter("keywords IS NULL");
 
-                // 将返回的输入流转换成字符串
-                InputStream inputStream = httpUrlConn.getInputStream();
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "utf-8");
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        dataFrame.show();
+        System.out.println(dataFrame.count());
 
-                String str = null;
-                while ((str = bufferedReader.readLine()) != null) {
-                    buffer.append(str);
-                }
-                bufferedReader.close();
-                inputStreamReader.close();
-                // 释放资源
-                inputStream.close();
-                inputStream = null;
-                httpUrlConn.disconnect();
+//        dataFrame.repartition(1)
+//                .write()
+//                .mode(SaveMode.Overwrite)
+//                .parquet("hdfs://90.90.90.5:8020/user/ddp/AnalysisProject/topic/keyphrase_filter.parquet");
 
-                break;
-            } catch (Exception e) {
-                System.out.println(e.getStackTrace());
-                tryNum ++;
-            }
-        }
-        JSONObject jsonObject = JSONObject.parseObject(buffer.toString());
-        if (!jsonObject.isEmpty())
-        {
-            System.out.println(jsonObject);
-        }else
-        {
-            System.out.println("not find");
-        }
+        jsc.stop();
     }
 }
