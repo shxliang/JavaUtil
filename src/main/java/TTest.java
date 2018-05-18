@@ -19,11 +19,11 @@ public class TTest {
         SQLContext sqlContext = new SQLContext(jsc);
 
         DataFrame dataFrame = sqlContext.read()
-                .parquet("hdfs://90.90.90.5:8020/user/ddp/AnalysisProject/topic/curData.parquet");
-        dataFrame = dataFrame.filter("keywords IS NULL");
+                .parquet("hdfs://90.90.90.5:8020/user/ddp/AnalysisProject/topic/keyphrase.parquet");
+        dataFrame = dataFrame.filter("number>=3");
 
-        dataFrame.show();
-        System.out.println(dataFrame.count());
+        dataFrame.show(200);
+//        System.out.println(dataFrame.count());
 
 //        dataFrame.repartition(1)
 //                .write()

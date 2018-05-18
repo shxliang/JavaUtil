@@ -10,7 +10,6 @@ import org.apache.spark.broadcast.Broadcast;
 import org.apache.spark.sql.*;
 import org.apache.spark.sql.api.java.UDF1;
 import org.apache.spark.sql.types.DataTypes;
-import scala.Int;
 import scala.Tuple2;
 
 import java.sql.Connection;
@@ -130,6 +129,7 @@ public class NewsGraph {
         }
     }
 
+
     /**
      * 插入文章信息表
      *
@@ -241,9 +241,9 @@ public class NewsGraph {
                         continue;
                     }
                     if ("nr".equals(parts[1])) {
-                        if (leaderBroadcast.value().contains(parts[0])) {
+//                        if (leaderBroadcast.value().contains(parts[0])) {
                             resultSet.add(parts[0]);
-                        }
+//                        }
                     }
                 }
                 result.addAll(resultSet);
@@ -268,12 +268,12 @@ public class NewsGraph {
                     }
                     if ("ns".equals(parts[1])) {
                         String place = parts[0];
-                        if (parts[0].endsWith("市") || parts[0].endsWith("县") || parts[0].endsWith("区") || parts[0].endsWith("省")) {
-                            place = place.substring(0, place.length() - 1);
-                        }
-                        if (placeBroadcast.value().containsKey(place)) {
+//                        if (parts[0].endsWith("市") || parts[0].endsWith("县") || parts[0].endsWith("区") || parts[0].endsWith("省")) {
+//                            place = place.substring(0, place.length() - 1);
+//                        }
+//                        if (placeBroadcast.value().containsKey(place)) {
                             resultSet.add(placeBroadcast.value().get(place));
-                        }
+//                        }
                     }
                 }
                 result.addAll(resultSet);
@@ -329,6 +329,7 @@ public class NewsGraph {
                 "pData.title," +
                 "pData.publishTime," +
                 "pData.keywords," +
+                "keyphrase.number," +
                 "keyphrase.phrase " +
                 "FROM pData,npData,keyphrase " +
                 "WHERE pData.url=npData.url " +
@@ -351,7 +352,8 @@ public class NewsGraph {
                 "url",
                 "title",
                 "publishTime",
-                "keywords")
+                "keywords",
+                "number")
                 .toJavaRDD()
                 .mapToPair(new PairFunction<Row, String, JSONObject>() {
                     @Override
@@ -368,6 +370,7 @@ public class NewsGraph {
                         List<String> keywords = new LinkedList<>();
                         String[] keywordsArray = row.getString(9).split(" ");
                         Collections.addAll(keywords, keywordsArray);
+                        int number = row.getInt(10);
 
                         JSONObject newsJson = new JSONObject();
                         newsJson.put("docId", docId);
@@ -384,7 +387,7 @@ public class NewsGraph {
                         result.put("news", newsJson);
                         result.put("keywords", keywords);
 
-                        return new Tuple2<>(phrase + ";" + topicId, result);
+                        return new Tuple2<>(phrase + ";" + topicId + ";" + number, result);
                     }
                 })
                 .groupByKey()
@@ -430,7 +433,7 @@ public class NewsGraph {
                 .cache();
 
         // 插入到Neo4j
-        reducedRDD.foreachPartition(new VoidFunction<Iterator<Tuple2<String, JSONObject>>>() {
+        reducedRDD.repartition(1).foreachPartition(new VoidFunction<Iterator<Tuple2<String, JSONObject>>>() {
             @Override
             public void call(Iterator<Tuple2<String, JSONObject>> tuple2Iterator) throws Exception {
                 Neo4jDao neo4jDao = new Neo4jDao();
@@ -441,31 +444,32 @@ public class NewsGraph {
                     String[] parts = tuple2._1().split(";");
                     String phrase = parts[0];
                     String topicId = parts[1];
+                    String number = parts[2];
                     Map<String, Integer> person = tuple2._2().getObject("person", HashMap.class);
                     Map<String, Integer> place = tuple2._2().getObject("place", HashMap.class);
                     Map<String, Integer> organization = tuple2._2().getObject("organization", HashMap.class);
                     Map<String, Integer> mediaName = tuple2._2().getObject("mediaName", HashMap.class);
 
                     for (Map.Entry<String, Integer> curPerson : person.entrySet()) {
-                        neo4jDao.createRelation("MERGE (m:Topic{name:'" + phrase + "'}) " +
+                        neo4jDao.createRelation("MERGE (m:Topic{name:'" + phrase + "',number:" + number + "}) " +
                                 "MERGE (n:Person{name:'" + curPerson.getKey() + "'}) " +
                                 "MERGE (m)-[r:Person]-(n)");
                     }
 
                     for (Map.Entry<String, Integer> curPlace : place.entrySet()) {
-                        neo4jDao.createRelation("MERGE (m:Topic{name:'" + phrase + "'}) " +
+                        neo4jDao.createRelation("MERGE (m:Topic{name:'" + phrase + "',number:" + number + "}) " +
                                 "MERGE (n:Place{name:'" + curPlace.getKey() + "'}) " +
                                 "MERGE (m)-[r:Place]-(n)");
                     }
 
                     for (Map.Entry<String, Integer> curOrganization : organization.entrySet()) {
-                        neo4jDao.createRelation("MERGE (m:Topic{name:'" + phrase + "'}) " +
+                        neo4jDao.createRelation("MERGE (m:Topic{name:'" + phrase + "',number:" + number + "}) " +
                                 "MERGE (n:Organization{name:'" + curOrganization.getKey() + "'}) " +
                                 "MERGE (m)-[r:Organization]-(n)");
                     }
 
                     for (Map.Entry<String, Integer> curMedia : mediaName.entrySet()) {
-                        neo4jDao.createRelation("MERGE (m:Topic{name:'" + phrase + "'}) " +
+                        neo4jDao.createRelation("MERGE (m:Topic{name:'" + phrase + "',number:" + number + "}) " +
                                 "MERGE (n:Media{name:'" + curMedia.getKey() + "'}) " +
                                 "MERGE (m)-[r:Media]-(n)");
                     }
@@ -487,6 +491,7 @@ public class NewsGraph {
 //                    String[] parts = tuple2._1().split(";");
 //                    String phrase = parts[0];
 //                    String topicId = parts[1];
+//                    String number = parts[2];
 //                    Map<String, Integer> person = tuple2._2().getObject("person", HashMap.class);
 //                    Map<String, Integer> place = tuple2._2().getObject("place", HashMap.class);
 //                    Map<String, Integer> organization = tuple2._2().getObject("organization", HashMap.class);
@@ -497,7 +502,7 @@ public class NewsGraph {
 //                    JSONObject topicVertex = new JSONObject();
 //                    topicVertex.put("id", topicId);
 //                    topicVertex.put("name", phrase);
-//                    topicVertex.put("value", 2);
+//                    topicVertex.put("value", number);
 //                    topicVertex.put("type", 1);
 //                    topicVertex.put("summary", keywords.toString());
 //
