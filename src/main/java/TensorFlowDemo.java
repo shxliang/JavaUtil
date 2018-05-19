@@ -16,7 +16,7 @@ import org.tensorflow.types.UInt8;
  * @author lsx
  * @date 2018/1/19
  */
-public class TensorFlowTest {
+public class TensorFlowDemo {
     public static void main(String[] args) {
 
         String modelDir = "D://lsx/inception5h";

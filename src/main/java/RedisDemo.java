@@ -7,7 +7,7 @@ import java.util.List;
  * @author lsx
  * @date 2018/5/2
  */
-public class TTTest {
+public class RedisDemo {
     public static void main(String[] args) {
         List<String> news = RedisClient.lrange("TTyIFTXf9iu9wPT2LgK0jKQY0focMWw0::records");
         int count = 0;

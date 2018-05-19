@@ -11,7 +11,7 @@ import edu.stanford.nlp.ling.CoreLabel;
  *  programmatically.  It assumes an input file in UTF8.
  *  <p/>
  *  <code>
- *  Usage: java -mx1g -cp seg.jar SegDemo fileName
+ *  Usage: java -mx1g -cp seg.jar StanfordSegmentDemo fileName
  *  </code>
  *  This will run correctly in the distribution home directory.  To
  *  run in general, the properties for where to find dictionaries or
@@ -20,7 +20,7 @@ import edu.stanford.nlp.ling.CoreLabel;
  *  @author Christopher Manning
  */
 
-public class SegDemo {
+public class StanfordSegmentDemo {
 
   private static final String basedir = "C:\\Users\\lsx\\IdeaProjects\\MyAwesomeSpark\\src\\main\\java\\data";
 

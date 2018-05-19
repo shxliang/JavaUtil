@@ -2,7 +2,7 @@
  * Created by lsx on 2017/3/23.
  */
 
-public class ThreadTest
+public class ThreadDemo
 {
     static double[] doubles = new double[300];
 

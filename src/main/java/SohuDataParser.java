@@ -17,7 +17,7 @@ import static org.apache.spark.sql.functions.count;
 /**
  * Created by lsx on 2017/5/22.
  */
-public class SohuDataSet
+public class SohuDataParser
 {
     public static void main(String[] args)
     {

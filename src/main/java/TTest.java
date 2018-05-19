@@ -16,14 +16,15 @@ public class TTest {
         sc.setMaster("local[*]").setAppName("text");
 
         JavaSparkContext jsc = new JavaSparkContext(sc);
+        jsc.setLogLevel("WARN");
         SQLContext sqlContext = new SQLContext(jsc);
 
         DataFrame dataFrame = sqlContext.read()
-                .parquet("hdfs://90.90.90.5:8020/user/ddp/AnalysisProject/topic/keyphrase.parquet");
-        dataFrame = dataFrame.filter("number>=3");
+                .parquet("hdfs://90.90.90.5:8020/ddp/today");
+        dataFrame = dataFrame.select("docId", "tid").filter("tid='0LdeEjenYCRiRYXEmtZq09DakBxSlFQU'");
 
-        dataFrame.show(200);
-//        System.out.println(dataFrame.count());
+        dataFrame.show();
+        System.out.println(dataFrame.count());
 
 //        dataFrame.repartition(1)
 //                .write()
