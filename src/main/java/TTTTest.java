@@ -1,10 +1,6 @@
 import com.alibaba.fastjson.JSONObject;
-import com.hankcs.hanlp.HanLP;
-import com.hankcs.hanlp.seg.NShort.NShortSegment;
 
-import java.io.*;
-import java.util.LinkedList;
-import java.util.List;
+import java.io.IOException;
 
 /**
  * @author lsx

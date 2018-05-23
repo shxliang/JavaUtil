@@ -4,7 +4,6 @@ import java.sql.*;
 import java.util.List;
 
 /**
- *
  * @author lsx
  * @date 2018/5/18
  */
@@ -25,13 +24,13 @@ public class MySQLDemo {
             StringBuilder filterSql = new StringBuilder();
             filterSql.append("(");
 
-            for (String line : lines){
+            for (String line : lines) {
                 String[] parts = line.split("\t");
-                if (parts.length == 2){
+                if (parts.length == 2) {
                     statement.addBatch("UPDATE dataman_knowtoop1_piont_drop " +
-                    "SET value=" + ("1".equals(parts[1]) ? "30" : "20") + " " +
-                    "WHERE name='" + parts[0] + "'");
-                }else {
+                            "SET value=" + ("1".equals(parts[1]) ? "30" : "20") + " " +
+                            "WHERE name='" + parts[0] + "'");
+                } else {
                     statement.addBatch("UPDATE dataman_knowtoop1_piont_drop " +
                             "SET value=15 " +
                             "WHERE name='" + parts[0] + "'");
