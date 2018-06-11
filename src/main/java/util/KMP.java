@@ -3,6 +3,9 @@ package util;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author lsx
+ */
 public class KMP {
     public static List<Integer> search(String pat, String txt) {
         List<Integer> result = new ArrayList<>();

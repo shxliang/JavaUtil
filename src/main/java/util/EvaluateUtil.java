@@ -4,11 +4,11 @@ import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator;
 import org.apache.spark.sql.DataFrame;
 
 /**
- * Created by lsx on 2017/7/12.
+ * @author lsx
+ * @date 2017/7/12
  */
 public class EvaluateUtil {
-    public static class EvaluateResult
-    {
+    public static class EvaluateResult {
         double accuracy;
         double f1;
 
@@ -29,14 +29,13 @@ public class EvaluateUtil {
         }
     }
 
-    public static EvaluateResult runEvaluate(DataFrame inputDF, String predictionCol, String trueLabelCol)
-    {
+    public static EvaluateResult runEvaluate(DataFrame inputDF, String predictionCol, String trueLabelCol) {
         MulticlassClassificationEvaluator multiclassClassificationEvaluator = new MulticlassClassificationEvaluator()
                 .setMetricName("f1")
                 .setLabelCol(trueLabelCol)
                 .setPredictionCol(predictionCol);
         double f1 = multiclassClassificationEvaluator.evaluate(inputDF);
-        double accuracy = (double)inputDF.filter(predictionCol+"="+trueLabelCol).count()/inputDF.count();
+        double accuracy = (double) inputDF.filter(predictionCol + "=" + trueLabelCol).count() / inputDF.count();
 
         EvaluateResult result = new EvaluateResult();
         result.setAccuracy(accuracy);

@@ -15,13 +15,14 @@ import java.util.Set;
 import static org.apache.spark.sql.functions.count;
 
 /**
- * Created by lsx on 2017/5/22.
+ * 解析搜狗实验室数据
+ *
+ * @author lsx
+ * @date 2017/5/22
  */
-public class SohuDataParser
-{
-    public static void main(String[] args)
-    {
-        System.setProperty("hadoop.home.dir","D:\\winutils");
+public class SogouDataParser {
+    public static void main(String[] args) {
+        System.setProperty("hadoop.home.dir", "D:\\winutils");
 
         SparkConf sc = new SparkConf().setMaster("local[*]").setAppName("Test");
         JavaSparkContext jsc = new JavaSparkContext(sc);
@@ -29,28 +30,25 @@ public class SohuDataParser
 
         List<Row> classLabel = sqlContext.read()
                 .format("com.databricks.spark.csv")
-                .option("header","true")
+                .option("header", "true")
                 .load("file:///E:\\数据集\\搜狗实验室\\sohu_categories_2012.csv")
                 .collectAsList();
-        final Map<String,String> classLabelMap = new HashMap<>();
+        final Map<String, String> classLabelMap = new HashMap<>();
         for (Row r : classLabel) {
             classLabelMap.put(r.getString(1), r.getString(0));
         }
 
         DataFrame data = sqlContext.read()
                 .format("com.databricks.spark.csv")
-                .option("header","true")
+                .option("header", "true")
                 .load("file:///E:\\数据集\\搜狗实验室\\sogoucs_reduced.csv");
         data.registerTempTable("data");
 
-        sqlContext.udf().register("getClass", new UDF1<String, String>()
-        {
+        sqlContext.udf().register("getClass", new UDF1<String, String>() {
             @Override
-            public String call(String s) throws Exception
-            {
+            public String call(String s) throws Exception {
                 Set<String> set = classLabelMap.keySet();
-                for (String str : set)
-                {
+                for (String str : set) {
                     if (s.startsWith(str)) {
                         return classLabelMap.get(str);
                     }
@@ -67,8 +65,8 @@ public class SohuDataParser
                 "FROM data");
 
         result = result.filter(result.col("class").isNotNull())
-                        .filter(result.col("contenttitle").isNotNull())
-                        .filter(result.col("content").isNotNull());
+                .filter(result.col("contenttitle").isNotNull())
+                .filter(result.col("content").isNotNull());
 
         result.repartition(1)
                 .write()

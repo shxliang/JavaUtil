@@ -4,6 +4,8 @@ import java.sql.*;
 import java.util.List;
 
 /**
+ * JDBC操作MySQL
+ *
  * @author lsx
  * @date 2018/5/18
  */

@@ -34,7 +34,7 @@ public class GetDataFromKafka implements Runnable {
         Properties properties = new Properties();
         properties.put("zookeeper.connect", "90.90.90.5:2181");
         // 必须要使用别的组名称，如果生产者和消费者都在同一组，则不能访问同一组内的topic数据
-        properties.put("group.id", "CMMtest");
+        properties.put("group.id", "default");
         properties.put("auto.offset.reset", "largest");
         ConsumerConnector consumer = Consumer
                 .createJavaConsumerConnector(new ConsumerConfig(properties));

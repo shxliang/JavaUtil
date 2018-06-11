@@ -15,13 +15,13 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created by lsx on 2016/9/27.
+ * 转换为LibSVM格式
+ *
+ * @author lsx
+ * @date 2016/9/27
  */
 public class ParseLibSVM {
-
-
-    public static class WordList implements Serializable
-    {
+    public static class WordList implements Serializable {
         public String wordId;
         public String word;
 
@@ -42,8 +42,7 @@ public class ParseLibSVM {
         }
     }
 
-    public static class Parsed implements Serializable
-    {
+    public static class Parsed implements Serializable {
         public String id;
         public String kv;
 
@@ -81,8 +80,6 @@ public class ParseLibSVM {
         counted.registerTempTable("counted");
 
 
-
-
         List<Row> rowList = sqlContext.sql("SELECT DISTINCT word FROM counted").toJavaRDD().collect();
 
 
@@ -90,37 +87,23 @@ public class ParseLibSVM {
         ArrayList<String> wordListMerge = new ArrayList<>();
 
 
-        for (int i=0;i<rowList.size();i++)
-        {
+        for (int i = 0; i < rowList.size(); i++) {
             wordListLocal.add(rowList.get(i).getString(0).trim());
-            wordListMerge.add(rowList.get(i).getString(0).trim()+","+i);
+            wordListMerge.add(rowList.get(i).getString(0).trim() + "," + i);
         }
 
         final Broadcast<ArrayList<String>> broadcastWordList = jsc.broadcast(wordListLocal);
 
         DataFrame wordList = sqlContext.createDataFrame(jsc.parallelize(wordListMerge).map(new Function<String, WordList>() {
-                    @Override
-                    public WordList call(String s) throws Exception {
-                        WordList result = new WordList();
-                        String[] parts = s.split(",");
-                        result.setWord(parts[0].trim());
-                        result.setWordId(parts[1].trim());
-                        return result;
-                    }
-                }),WordList.class).select("wordId","word");
-
-
-
-
-
-
-
-
-
-
-
-
-
+            @Override
+            public WordList call(String s) throws Exception {
+                WordList result = new WordList();
+                String[] parts = s.split(",");
+                result.setWord(parts[0].trim());
+                result.setWordId(parts[1].trim());
+                return result;
+            }
+        }), WordList.class).select("wordId", "word");
 
 
 //        Long worNum = sqlContext.sql("SELECT DISTINCT word FROM counted").count();
@@ -155,19 +138,11 @@ public class ParseLibSVM {
 //        System.out.println(wordListLocal);
 
 
-
-
-
-
-
-
-
         //结果数据:(id,kv)
         JavaPairRDD libSVM = counted.toJavaRDD().mapToPair(new PairFunction<Row, String, String>() {
             @Override
-            public Tuple2<String,String> call(Row row)
-            {
-                return new Tuple2(row.getString(0).trim(),row.getString(1).trim()+","+row.get(2).toString().trim());
+            public Tuple2<String, String> call(Row row) {
+                return new Tuple2(row.getString(0).trim(), row.getString(1).trim() + "," + row.get(2).toString().trim());
             }
         }).groupByKey().mapValues(new Function<Iterable<String>, String>() {
             @Override
@@ -179,22 +154,21 @@ public class ParseLibSVM {
                 StringBuilder result = new StringBuilder();
 
                 Iterator<String> iter = strings.iterator();
-                while (iter.hasNext())
-                {
+                while (iter.hasNext()) {
                     String cur = iter.next();
                     String[] parts = cur.split(",");
                     word.add(parts[0].trim());
                     count.add(parts[1].trim());
                 }
 
-                for(int i=0;i<word.size();i++) {
+                for (int i = 0; i < word.size(); i++) {
                     wordIndx.add(broadcastWordList.value().indexOf(word.get(i)));
                 }
 
-                for(int i=0;i<word.size()-1;i++) {
+                for (int i = 0; i < word.size() - 1; i++) {
                     result.append(wordIndx.get(i).toString().trim() + ":" + count.get(i).trim() + ",");
                 }
-                result.append(wordIndx.get(word.size()-1).toString().trim()+":"+count.get(word.size()-1).trim());
+                result.append(wordIndx.get(word.size() - 1).toString().trim() + ":" + count.get(word.size() - 1).trim());
 
                 //输出格式:(id,wordId:count)
                 return result.toString().trim();
@@ -202,25 +176,24 @@ public class ParseLibSVM {
         });
 
 
-        DataFrame parsed = sqlContext.createDataFrame(libSVM.map(new Function<Tuple2<String,String>,Parsed>() {
+        DataFrame parsed = sqlContext.createDataFrame(libSVM.map(new Function<Tuple2<String, String>, Parsed>() {
             @Override
-            public Parsed call(Tuple2<String,String> tss) throws Exception {
+            public Parsed call(Tuple2<String, String> tss) throws Exception {
                 Parsed result = new Parsed();
                 result.setId(tss._1().trim());
                 result.setKv(tss._2().trim());
                 return result;
             }
-        }),Parsed.class);
+        }), Parsed.class);
 
         parsed.registerTempTable("parsed");
 
         DataFrame parsedLibSVM = sqlContext.sql("SELECT " +
-                                                    "parsed.id,removed.classLabel,parsed.kv " +
-                                                "FROM " +
-                                                    "parsed,removed " +
-                                                "WHERE " +
-                                                    "parsed.id=removed.id");
-
+                "parsed.id,removed.classLabel,parsed.kv " +
+                "FROM " +
+                "parsed,removed " +
+                "WHERE " +
+                "parsed.id=removed.id");
 
 
         //输出格式第一列为文档id(id)，第二列为词id:词频(kv)
@@ -230,7 +203,6 @@ public class ParseLibSVM {
 //        wordList.write().parquet("hdfs://108.108.108.15/USER/root/nlp/testWordList.parquet");
 
 //        parsedLibSVM.show(false);
-
 
 
         jsc.stop();

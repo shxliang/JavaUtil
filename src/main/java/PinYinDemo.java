@@ -3,7 +3,6 @@ import net.sourceforge.pinyin4j.PinyinHelper;
 import java.util.Arrays;
 
 /**
- *
  * @author lsx
  * @date 2018/4/4
  */

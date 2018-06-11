@@ -9,6 +9,7 @@ import org.apache.spark.sql.types.DataTypes;
 import util.HtmlUtil;
 
 /**
+ * 从MySQL读取数据为Parquet
  *
  * @author lsx
  * @date 2018/3/16
@@ -19,7 +20,7 @@ public class Mysql2Parquet {
     private static String password = "1cc886c6c6b8";
 
     public static void main(String[] args) {
-        System.setProperty("hadoop.home.dir","D:\\winutils");
+        System.setProperty("hadoop.home.dir", "D:\\winutils");
 
         SparkConf sc = new SparkConf();
         sc.setMaster("local[*]").setAppName("test");
@@ -30,8 +31,7 @@ public class Mysql2Parquet {
         sqlContext.udf().register("getText", new UDF1<byte[], String>() {
             @Override
             public String call(byte[] s) throws Exception {
-                if(s == null)
-                {
+                if (s == null) {
                     return null;
                 }
                 String content = new String(s);
@@ -58,7 +58,7 @@ public class Mysql2Parquet {
                 .option("url", url)
                 .option("user", user)
                 .option("password", password)
-                .option("dbtable",querySql)
+                .option("dbtable", querySql)
                 .option("driver", "com.mysql.jdbc.Driver")
                 .load();
 

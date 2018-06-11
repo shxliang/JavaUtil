@@ -17,6 +17,8 @@ import util.MapUtil;
 import java.util.*;
 
 /**
+ * 分组统计topN词频
+ *
  * @author lsx
  * @date 2016/10/24
  */
@@ -52,7 +54,7 @@ public class HotWordByGroup {
                         return integer + integer2;
                     }
                 })
-                .mapToPair(new PairFunction<Tuple2<String,Integer>, String, Tuple2<String, Integer>>() {
+                .mapToPair(new PairFunction<Tuple2<String, Integer>, String, Tuple2<String, Integer>>() {
                     @Override
                     public Tuple2<String, Tuple2<String, Integer>> call(Tuple2<String, Integer> stringIntegerTuple2) throws Exception {
                         String[] parts = stringIntegerTuple2._1().split(";");
@@ -66,18 +68,15 @@ public class HotWordByGroup {
                     @Override
                     public Iterable<Tuple2<String, Integer>> call(Iterable<Tuple2<String, Integer>> tuple2s) throws Exception {
                         Map<String, Integer> map = new HashMap<>();
-                        for (Tuple2<String, Integer> tup2 : tuple2s)
-                        {
+                        for (Tuple2<String, Integer> tup2 : tuple2s) {
                             map.put(tup2._1(), tup2._2());
                         }
                         map = MapUtil.sortByValue(map);
                         List<Tuple2<String, Integer>> result = new LinkedList<>();
                         int count = 0;
                         int maxCount = 100;
-                        for(Map.Entry<String, Integer> entry : map.entrySet())
-                        {
-                            if (count >= maxCount)
-                            {
+                        for (Map.Entry<String, Integer> entry : map.entrySet()) {
+                            if (count >= maxCount) {
                                 break;
                             }
                             result.add(new Tuple2<String, Integer>(entry.getKey(), entry.getValue()));

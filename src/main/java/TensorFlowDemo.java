@@ -12,6 +12,7 @@ import org.tensorflow.*;
 import org.tensorflow.types.UInt8;
 
 /**
+ * Java端调用Python端TensorFlow训练好的模型
  *
  * @author lsx
  * @date 2018/1/19
@@ -76,8 +77,7 @@ public class TensorFlowDemo {
             g.importGraphDef(graphDef);
 
             Iterator<Operation> iter = g.operations();
-            while (iter.hasNext())
-            {
+            while (iter.hasNext()) {
                 System.out.println(iter.next().name());
             }
 

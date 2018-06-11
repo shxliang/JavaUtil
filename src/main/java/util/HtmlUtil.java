@@ -6,6 +6,7 @@ import org.jsoup.safety.Whitelist;
 import java.util.regex.Pattern;
 
 /**
+ * 删除html中的tag
  *
  * @author lsx
  * @date 2017/7/7
@@ -23,7 +24,7 @@ public class HtmlUtil {
         htmlStr = tag_reg.matcher(htmlStr).replaceAll("");
         htmlStr = space_reg.matcher(htmlStr).replaceAll("");
 
-        return htmlStr.replaceAll("[\n\r]","");
+        return htmlStr.replaceAll("[\n\r]", "");
     }
 
     public static void main(String[] args) {

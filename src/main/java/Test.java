@@ -14,7 +14,6 @@ import java.util.*;
 import java.util.concurrent.ThreadFactory;
 
 /**
- *
  * @author lsx
  * @date 2017/1/7
  */
@@ -24,7 +23,7 @@ public class Test {
     public static final String password = "1cc886c6c6b8";
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        System.setProperty("hadoop.home.dir","D:\\winutils");
+        System.setProperty("hadoop.home.dir", "D:\\winutils");
 
         SparkConf sc = new SparkConf();
         sc.setMaster("local[*]").setAppName("text");
@@ -45,16 +44,13 @@ public class Test {
                 })
                 .collect();
         String dirPath = "民事一审案件_9015-100_2/";
-        for (Tuple2<String, String> tuple2 : tuple2s)
-        {
+        for (Tuple2<String, String> tuple2 : tuple2s) {
             String caseId = tuple2._1();
             FileWriter writer = new FileWriter(dirPath + caseId);
             BufferedWriter bw = new BufferedWriter(writer);
             String[] parts = tuple2._2().split("[\n\r]");
-            for (String part : parts)
-            {
-                if (part.trim().length() < 1)
-                {
+            for (String part : parts) {
+                if (part.trim().length() < 1) {
                     continue;
                 }
                 bw.write(part + "\n");
@@ -65,13 +61,11 @@ public class Test {
     }
 
 
-    private static void registerUDF(SQLContext sqlContext)
-    {
+    private static void registerUDF(SQLContext sqlContext) {
         sqlContext.udf().register("getText", new UDF1<byte[], String>() {
             @Override
             public String call(byte[] s) throws Exception {
-                if(s == null)
-                {
+                if (s == null) {
                     return null;
                 }
                 String content = new String(s);
@@ -100,34 +94,29 @@ public class Test {
         }, DataTypes.StringType);
     }
 
-    public static class CustomThreadFactory implements ThreadFactory
-    {
+    public static class CustomThreadFactory implements ThreadFactory {
         private int counter;
         private String name;
         private List<String> stats;
 
-        public CustomThreadFactory(String name)
-        {
+        public CustomThreadFactory(String name) {
             counter = 1;
             this.name = name;
             stats = new ArrayList<String>();
         }
 
         @Override
-        public Thread newThread(Runnable runnable)
-        {
+        public Thread newThread(Runnable runnable) {
             Thread t = new Thread(runnable, name + "-Thread_" + counter);
             counter++;
             stats.add(String.format("Created thread %d with name %s on %s \n", t.getId(), t.getName(), new Date()));
             return t;
         }
 
-        public String getStats()
-        {
+        public String getStats() {
             StringBuffer buffer = new StringBuffer();
             Iterator<String> it = stats.iterator();
-            while (it.hasNext())
-            {
+            while (it.hasNext()) {
                 buffer.append(it.next());
             }
             return buffer.toString();

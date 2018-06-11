@@ -20,24 +20,24 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created by lsx on 2016/10/8.
+ * @author lsx
+ * @date 2016/10/8
  */
 
 public class OneVsRestSVM {
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         SparkConf sc = new SparkConf().setMaster("local[*]").setAppName("SVM");
         JavaSparkContext jsc = new JavaSparkContext(sc);
         SQLContext sqlContext = new SQLContext(jsc);
 
 
-        DataFrame data =sqlContext.read().parquet("hdfs://108.108.108.15/USER/root/nlp/indexed.parquet")
-                .select("id","categoryIndex","vec").cache();
+        DataFrame data = sqlContext.read().parquet("hdfs://108.108.108.15/USER/root/nlp/indexed.parquet")
+                .select("id", "categoryIndex", "vec").cache();
 
 
         List<Row> labelList = data.select("categoryIndex").distinct().collectAsList();
         ArrayList<Double> localLabelList = new ArrayList<>();
-        for (int i=0;i<labelList.size();i++) {
+        for (int i = 0; i < labelList.size(); i++) {
             localLabelList.add((double) labelList.get(i).get(0));
         }
 
@@ -46,20 +46,19 @@ public class OneVsRestSVM {
         final Broadcast<Integer> numClass = jsc.broadcast(localLabelList.size());
 
 
-        JavaRDD<Tuple2<String,LabeledPoint>> curRDD;
+        JavaRDD<Tuple2<String, LabeledPoint>> curRDD;
         JavaRDD<LabeledPoint> curLabeledPiont;
 
 
-        ArrayList<JavaPairRDD<String,Tuple2<Double,Double>>> predictList = new ArrayList<>();
+        ArrayList<JavaPairRDD<String, Tuple2<Double, Double>>> predictList = new ArrayList<>();
 
-        for (int i=0;i<numClass.value();i++)
-        {
+        for (int i = 0; i < numClass.value(); i++) {
             final double curClass = broadcastLabel.value().get(i);
 
             curRDD = data.toJavaRDD()
-                    .map(new Function<Row, Tuple2<String,LabeledPoint>>() {
+                    .map(new Function<Row, Tuple2<String, LabeledPoint>>() {
                         @Override
-                        public Tuple2<String,LabeledPoint> call(Row row) throws Exception {
+                        public Tuple2<String, LabeledPoint> call(Row row) throws Exception {
                             if (row.getDouble(1) == curClass) {
                                 return new Tuple2<String, LabeledPoint>(row.getString(0).trim(), new LabeledPoint((double) 1, (Vector) row.get(2)));
                             } else {
@@ -67,7 +66,6 @@ public class OneVsRestSVM {
                             }
                         }
                     });
-
 
 
             curLabeledPiont = curRDD.map(new Function<Tuple2<String, LabeledPoint>, LabeledPoint>() {
@@ -95,10 +93,9 @@ public class OneVsRestSVM {
 
             final Double curPrecision = curMetrics.precision();
 
-            JavaPairRDD<String,Tuple2<Double,Double>> curPredict = curRDD.mapToPair(new PairFunction<Tuple2<String,LabeledPoint>, String, Tuple2<Double,Double>>() {
+            JavaPairRDD<String, Tuple2<Double, Double>> curPredict = curRDD.mapToPair(new PairFunction<Tuple2<String, LabeledPoint>, String, Tuple2<Double, Double>>() {
                 @Override
-                public Tuple2<String,Tuple2<Double,Double>> call(Tuple2<String,LabeledPoint> stringLabeledPointTuple2)
-                {
+                public Tuple2<String, Tuple2<Double, Double>> call(Tuple2<String, LabeledPoint> stringLabeledPointTuple2) {
                     Double predictResult = curModel.predict(stringLabeledPointTuple2._2().features());
                     if (predictResult == 1.0) {
                         return new Tuple2(stringLabeledPointTuple2._1().trim(), new Tuple2(curClass, curPrecision));
@@ -116,17 +113,15 @@ public class OneVsRestSVM {
         }
 
 
-
-
-        JavaPairRDD<String,Tuple2<Double,Double>> predictRDD = predictList.get(0).union(predictList.get(1));
-        if (predictList.size()>2) {
+        JavaPairRDD<String, Tuple2<Double, Double>> predictRDD = predictList.get(0).union(predictList.get(1));
+        if (predictList.size() > 2) {
             for (int i = 2; i < predictList.size(); i++) {
                 predictRDD = predictRDD.union(predictList.get(i));
             }
         }
 
 
-        JavaPairRDD<String,Double> predictions = predictRDD.groupByKey().mapValues(new Function<Iterable<Tuple2<Double, Double>>, Double>() {
+        JavaPairRDD<String, Double> predictions = predictRDD.groupByKey().mapValues(new Function<Iterable<Tuple2<Double, Double>>, Double>() {
             @Override
             public Double call(Iterable<Tuple2<Double, Double>> tuple2s) throws Exception {
 
@@ -134,27 +129,25 @@ public class OneVsRestSVM {
                 ArrayList<Double> prec = new ArrayList<Double>();
                 ArrayList<Double> result = new ArrayList<Double>();
 
-                Iterator<Tuple2<Double,Double>> iter = tuple2s.iterator();
-                while (iter.hasNext())
-                {
+                Iterator<Tuple2<Double, Double>> iter = tuple2s.iterator();
+                while (iter.hasNext()) {
                     Tuple2 curTuple = iter.next();
                     label.add((Double) curTuple._1());
-                    prec.add((Double)curTuple._2());
+                    prec.add((Double) curTuple._2());
 
                 }
 
-                for(int i=0;i<label.size();i++) {
+                for (int i = 0; i < label.size(); i++) {
                     if (label.get(i) != (-1.0)) {
                         result.add(label.get(i));
                     }
                 }
 
 
-                if (result.size()>1)
-                {
+                if (result.size() > 1) {
                     double maxLabel = -1;
                     double max = 0;
-                    for (int i=0;i<result.size();i++) {
+                    for (int i = 0; i < result.size(); i++) {
                         if (prec.get(label.indexOf(result.get(i))) > max) {
                             max = prec.get(label.indexOf(result.get(i)));
                             maxLabel = result.get(i);
@@ -162,8 +155,7 @@ public class OneVsRestSVM {
                     }
                     return maxLabel;
 
-                }
-                else if (result.size() == 1) {
+                } else if (result.size() == 1) {
                     return result.get(0);
                 } else {
                     return -1.0;
@@ -174,17 +166,13 @@ public class OneVsRestSVM {
         });
 
 
-        JavaPairRDD<String,Tuple2<Double,Double>> predicResult = predictions
-                .join(data.select("id","categoryIndex").toJavaRDD().mapToPair(new PairFunction<Row, String, Double>() {
+        JavaPairRDD<String, Tuple2<Double, Double>> predicResult = predictions
+                .join(data.select("id", "categoryIndex").toJavaRDD().mapToPair(new PairFunction<Row, String, Double>() {
                     @Override
-                    public Tuple2<String,Double> call(Row row)
-                    {
-                        return new Tuple2<String, Double>(row.getString(0).trim(),row.getDouble(1));
+                    public Tuple2<String, Double> call(Row row) {
+                        return new Tuple2<String, Double>(row.getString(0).trim(), row.getDouble(1));
                     }
                 }));
-
-
-
 
 
 //        System.out.println(precision);
@@ -196,18 +184,15 @@ public class OneVsRestSVM {
 //        System.out.println(predicResult.collect());
 
 
-        JavaRDD<Tuple2<Object,Object>> predicMetrics = predicResult.map(new Function<Tuple2<String, Tuple2<Double, Double>>, Tuple2<Object, Object>>() {
+        JavaRDD<Tuple2<Object, Object>> predicMetrics = predicResult.map(new Function<Tuple2<String, Tuple2<Double, Double>>, Tuple2<Object, Object>>() {
             @Override
             public Tuple2<Object, Object> call(Tuple2<String, Tuple2<Double, Double>> stringTuple2Tuple2) throws Exception {
-                return new Tuple2<Object, Object>(stringTuple2Tuple2._2()._1(),stringTuple2Tuple2._2()._2());
+                return new Tuple2<Object, Object>(stringTuple2Tuple2._2()._1(), stringTuple2Tuple2._2()._2());
             }
         });
 
         MulticlassMetrics metrics = new MulticlassMetrics(predicMetrics.rdd());
 
         System.out.println(metrics.precision());
-
-
     }
-
 }
