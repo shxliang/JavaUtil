@@ -15,7 +15,7 @@ public class KafkaDemo {
         while (true) {
             jsonObject.put("postId", String.valueOf(random.nextInt(10000)));
             KafkaUtil.send(System.currentTimeMillis(), jsonObject.toJSONString());
-//            Thread.sleep(1);
+            Thread.sleep(1);
         }
     }
 }

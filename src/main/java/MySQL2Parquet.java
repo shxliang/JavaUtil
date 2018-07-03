@@ -14,7 +14,7 @@ import util.HtmlUtil;
  * @author lsx
  * @date 2018/3/16
  */
-public class Mysql2Parquet {
+public class MySQL2Parquet {
     private static String url = "jdbc:mysql://90.90.90.101:3306/wxb_screen";
     private static String user = "root";
     private static String password = "1cc886c6c6b8";

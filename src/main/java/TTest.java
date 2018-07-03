@@ -20,11 +20,12 @@ public class TTest {
         SQLContext sqlContext = new SQLContext(jsc);
 
         DataFrame dataFrame = sqlContext.read()
-                .parquet("hdfs://90.90.90.5:8020/ddp/today");
-        dataFrame = dataFrame.select("docId", "tid").filter("tid='0LdeEjenYCRiRYXEmtZq09DakBxSlFQU'");
+                .parquet("hdfs://90.90.90.5:8020/user/lsx/mlModule/TextClassifierTrain/removed_sr_allData2.parquet");
 
         dataFrame.show();
-        System.out.println(dataFrame.count());
+//        dataFrame.printSchema();
+//        System.out.println(dataFrame.count());
+//        dataFrame.groupBy("class").count().show();
 
 //        dataFrame.repartition(1)
 //                .write()
